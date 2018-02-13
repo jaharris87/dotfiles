@@ -1,0 +1,38 @@
+# this is the global screenrc file. Handle with care.
+
+#termcapinfo xterm* G0:is=\E[?4l\E>:ti@:te@
+termcapinfo xterm* 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'
+termcapinfo gnome* 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'
+termcapinfo xterm* ti@:te@
+termcapinfo gnome* ti@:te@
+termcapinfo putty* XT
+termcapinfo putty* ti@:te@
+#termcapinfo linux me=\E[m:AX
+
+# Use 256 colors
+attrcolor b ".I"
+term screen-256color
+
+#hardstatus off
+hardstatus alwayslastline
+hardstatus string "%{= 9W}[ %{= 9B}$USER %{= 9W}]  %L=%=%{= 9d}%-w%40L>%{= 9R}[%{= 9W} %n %t %{= 9R}]%?%{= 9d}%+w%?%=%-19<%-=%{= 9W}[%{= 9G} %H %{= 9W}]%-0<%{-}"
+
+#bindkey "[1;5D" prev  # change window with ctrl-left
+#bindkey "[1;5C" next  # change window with ctrl-right
+
+autodetach on
+startup_message off
+vbell off
+altscreen on
+defscrollback 10000
+#------------------------------------------------------------------------
+
+#------------------------------------------------------------------
+# DEFAULT HEADS
+#------------------------------------------------------------------
+
+chdir "$HOME"
+screen
+
+chdir "$WORKDIR"
+screen

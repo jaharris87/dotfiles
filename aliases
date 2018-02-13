@@ -1,0 +1,85 @@
+#!/bin/bash
+
+# Attach to a screen session if one exists, detach if attached
+# elsewhere, create new session otherwise
+if [ $OLCF_HOST == "summit" ]; then
+    alias screen="screen -dRR -c $HOME/.screenrc.summit"
+else
+    alias screen="screen -dRR"
+fi
+
+## Set grep colors
+alias grep="grep --colour=auto"
+
+# Allow for LS_COLORS; output filesizes in more readable format
+alias ls="ls --color=auto -v -h -N -T 0 --group-directories-first"
+# List files in list format, omit project name
+alias lsl="ls -o"
+# Show hidden files
+alias ls.="ls -od .*"
+# Show folders
+alias lsd="ls -oUd */"
+# Show everything
+alias lsa="ls -oa"
+
+## Set SVN colors
+alias svn="python $HOME/misc/svn-color/svn-color.py"
+
+## Show only jobs for $USER (summitdev does not use moab)
+#alias qstatu="qstat -u $USER"
+#alias showqu="showq -u $USER"
+
+## Queue management (LSF for Summit, MOAB for other OLCF machines)
+if [ $OLCF_HOST == "summit" -o $OLCF_HOST == "summitdev" ]; then
+
+    ## Custom format
+    export LSB_BJOBS_FORMAT="jobid:7 queue:12 user:12 stat:7 slots:8 nexec_host:13 first_host:18 submit_time:13 start_time:13 run_time:-15"
+
+    ## Show only jobs for $USER (default behavior of bjobs)
+    alias bjobsu="bjobs -u $USER"
+    ## Show all jobs in queue for all users
+    alias bjobsa="bjobs -u all"
+    ## Show running jobs for all users
+    alias bjobsr="bjobs -u all -r"
+    ## Show pending jobs for all users
+    alias bjobsp="bjobs -u all -p"
+
+    ## Interactive job
+    alias bsubi="bsub -P CSC198 -nnodes 1 -W 00:30 -Is $SHELL"
+    alias bsubi_2nodes="bsub -P CSC198 -nnodes 2 -W 00:30 -Is $SHELL"
+    alias bsubi_8nodes="bsub -P CSC198 -nnodes 8 -W 00:30 -Is $SHELL"
+
+    ## Count available nodes
+    if [ $OLCF_HOST == "summitdev" ]; then
+        ## This removes known bad nodes from the list
+        alias bnodes_ok="bhosts | grep 'ok' | grep -v -e 'r0c0n07' -e 'r0c0n10' -e 'r0c0n12' -e 'r0c1n10' -e 'r0c1n13' -e 'r0c1n14' -e 'r0c1n15' -e 'r0c1n16' -e 'r0c2n09' -e 'r0c2n16' | wc -l"
+    else
+        alias bnodes_ok="bhosts | grep 'ok' | wc -l"
+    fi
+
+    ## Submit directory of job
+    alias bjobsls="bjobs -o 'sub_cwd'"
+
+else
+
+    ## Show only jobs for $USER
+    alias qstatu="qstat -u $USER"
+    alias showqu="showq -u $USER"
+
+    ## Show only jobs for other users in group (AST131)
+    AST131_USERS="barkerb,bronson,bruenn,buffaloe,eendeve,jaharris,jnova,jrosa1,lentz,raph,ryanl,samvm,tanner,yakunin1,elingerf,alexk,ranchu1,jrober50"
+    alias qstatg="qstat -u $AST131_USERS"
+
+    ## Interactive job
+    alias qsubi="qsub -I -A CSC198 -q debug -l walltime=01:00:00,nodes=1"
+    if [ $OLCF_HOST == "rhea" ]; then
+        alias qsubi="qsub -I -A CSC198 -q batch -l walltime=01:00:00,nodes=1"
+        alias qsubiX="qsub -I -A CSC198 -q batch -l walltime=01:00:00,nodes=1 -X"
+        alias qsubi_gpu="qsub -I -A CSC198 -q batch -l walltime=01:00:00,nodes=1 -lpartition=gpu"
+        alias qnodes_ok="qnodes | grep -A2 '^rhea[0-9]\+' | grep 'state = free' | wc -l"
+    else
+        alias qsubi="qsub -I -A CSC198 -q debug -l walltime=01:00:00,nodes=1"
+        alias qnodes_ok="qnodes | grep -A2 '^[0-9]\+' | grep 'state = free' | wc -l"
+    fi
+
+fi
