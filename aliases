@@ -2,8 +2,8 @@
 
 # Attach to a screen session if one exists, detach if attached
 # elsewhere, create new session otherwise
-if [ $OLCF_HOST == "summit" ]; then
-    alias screen="screen -dRR -c $HOME/.screenrc.summit"
+if [ -f $HOME/.screenrc.$HOST_SHORT ]; then
+    alias screen="screen -dRR -c $HOME/.screenrc.$HOST_SHORT"
 else
     alias screen="screen -dRR"
 fi
@@ -25,12 +25,8 @@ alias lsa="ls -oa"
 ## Set SVN colors
 alias svn="python $HOME/misc/svn-color/svn-color.py"
 
-## Show only jobs for $USER (summitdev does not use moab)
-#alias qstatu="qstat -u $USER"
-#alias showqu="showq -u $USER"
-
-## Queue management (LSF for Summit, MOAB for other OLCF machines)
-if [ $OLCF_HOST == "summit" -o $OLCF_HOST == "summitdev" ]; then
+## Queue management (LSF for Summit, SLURM for NERSC machines, MOAB for other OLCF machines)
+if [ $HOST_SHORT == "summit" -o $HOST_SHORT == "summitdev" ]; then
 
     ## Custom format
     export LSB_BJOBS_FORMAT="jobid:7 queue:12 user:12 stat:7 slots:8 nexec_host:13 first_host:18 submit_time:13 start_time:13 run_time:-15"
@@ -50,7 +46,7 @@ if [ $OLCF_HOST == "summit" -o $OLCF_HOST == "summitdev" ]; then
     alias bsubi_8nodes="bsub -P $PROJID -nnodes 8 -W 00:30 -Is $SHELL"
 
     ## Count available nodes
-    if [ $OLCF_HOST == "summitdev" ]; then
+    if [ $HOST_SHORT == "summitdev" ]; then
         ## This removes known bad nodes from the list
         alias bnodes_ok="bhosts | grep 'ok' | grep -v -e 'r0c0n07' -e 'r0c0n10' -e 'r0c0n12' -e 'r0c1n10' -e 'r0c1n13' -e 'r0c1n14' -e 'r0c1n15' -e 'r0c1n16' -e 'r0c2n09' -e 'r0c2n16' | wc -l"
     else
@@ -60,6 +56,24 @@ if [ $OLCF_HOST == "summit" -o $OLCF_HOST == "summitdev" ]; then
     ## Submit directory of job
     alias bjobsls="bjobs -o 'sub_cwd'"
 
+## SLURM aliases for NERSC machines
+elif [ ! -z ${NERSC_HOST+x} ]; then
+
+    ## Show only jobs for $USER
+    alias sqsu="sqs -u $USER"
+    ## Show only jobs for other users in group
+    alias sqsg="sqs -u $PROJ_USERS"
+
+    ## Launch interactive job
+    if [ $HOST_SHORT == "edison" ]; then
+        alias sbatchi="salloc -q debug -t 00:30:00 -N 1"
+    elif [ $HOST_SHORT == "cori" ]; then
+        alias sbatchi="salloc -q debug -t 00:30:00 -N 1 -C knl,quad,cache"
+    fi
+
+    ## Expand max column width for sqs
+    alias sqs="sqs -m 30"
+
 else
 
     ## Show only jobs for $USER
@@ -67,12 +81,11 @@ else
     alias showqu="showq -u $USER"
 
     ## Show only jobs for other users in group
-    PROJ_USERS="barkerb,bronson,bruenn,buffaloe,eendeve,jaharris,jnova,jrosa1,lentz,raph,ryanl,samvm,tanner,yakunin1,elingerf,alexk,ranchu1,jrober50"
     alias qstatg="qstat -u $PROJ_USERS"
 
     ## Interactive job
     alias qsubi="qsub -I -A $PROJID -q debug -l walltime=01:00:00,nodes=1"
-    if [ $OLCF_HOST == "rhea" ]; then
+    if [ $HOST_SHORT == "rhea" ]; then
         alias qsubi="qsub -I -A $PROJID -q batch -l walltime=01:00:00,nodes=1"
         alias qsubiX="qsub -I -A $PROJID -q batch -l walltime=01:00:00,nodes=1 -X"
         alias qsubi_gpu="qsub -I -A $PROJID -q batch -l walltime=01:00:00,nodes=1 -lpartition=gpu"
