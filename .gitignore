@@ -1,4 +1,8 @@
-vim/cache/*
 vim/backups/*
+vim/bundle/*
+vim/cache/*
 vim/swaps/*
 vim/undo/*
+
+# exceptions
+!.gitkeep

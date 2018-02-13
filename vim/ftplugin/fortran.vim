@@ -56,8 +56,8 @@ endif
 " Set comments and textwidth according to source type
 if (b:fortran_fixed_source == 1)
   setlocal comments=:!,:*,:C
-  " Fixed format requires a textwidth of 72 for code
-  setlocal tw=72
+  " Fixed format requires a textwidth of 132 for code
+  setlocal tw=132
   " If you need to add "&" on continued lines so that the code is
   " compatible with both free and fixed format, then you should do so
   " in column 73 and uncomment the next line

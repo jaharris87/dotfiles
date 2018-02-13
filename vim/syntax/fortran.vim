@@ -304,8 +304,8 @@ syn cluster fortranCommentGroup contains=fortranTodo
 
 if (b:fortran_fixed_source == 1)
   if !exists("fortran_have_tabs")
-    "Flag items beyond column 72
-    syn match fortranSerialNumber	excludenl "^.\{73,}$"lc=72
+    "Flag items beyond column 132
+    syn match fortranSerialNumber	excludenl "^.\{133,}$"lc=132
     "Flag left margin errors
     syn match fortranLabelError	"^.\{-,4}[^0-9 ]" contains=fortranTab
     syn match fortranLabelError	"^.\{4}\d\S"
