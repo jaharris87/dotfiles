@@ -5,6 +5,10 @@ black=$(tty -s && tput setaf 0)
 bold=$(tty -s && tput bold)
 reset=$(tty -s && tput sgr0)
 
+function parse_git_branch {
+   git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}
+#export PS1="\[$bold$yellow\]\u@\h\[$reset\]: \[$bold$white\]\w\[$reset\]\$(parse_git_branch)> "
 export PS1="\[$bold$yellow\]\u@\h\[$reset\]: \[$bold$white\]\w\[$reset\]> "
 
 ## Export commands to history as they are executed (allows shared history between screen sessions)
@@ -27,6 +31,8 @@ elif [[ $FQDN = *"illinois.edu" ]]; then
     export FACILITY="NCSA"
 elif [[ $FQDN = *"tennessee.edu" ]]; then
     export FACILITY="NICS"
+else
+    export FACILITY="local"
 fi
 
 ## Trim extras off HOSTNAME (e.g. -ext2, edison05, cori10)
@@ -83,7 +89,9 @@ if [ ! -z ${PE_ENV+x} ]; then
 fi
 
 ## Number of processors on this node
-export NPROC=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
+if [ -f /proc/cpuinfo ]; then
+    export NPROC=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
+fi
 
 ## Set facility/machine specific environment variables
 if [ $FACILITY == "OLCF" ]; then
@@ -116,6 +124,56 @@ elif [ $FACILITY == "NCSA" ]; then
     export PROJHOME=/projects/sciteam/$PROJID
     export PROJWORKDIR=$WORKDIR
     export HPSS_PROJDIR=/projects/sciteam/$PROJID
+elif [ $FACILITY == "local" ]; then
+    export WORKDIR=$HOME
+    export PROJHOME=$HOME
+    export PROJWORKDIR=$WORKDIR
+    export HPSS_PROJDIR=$PROJHOME
+
+    ## Mac OS X
+    if [ "$(uname)" == "Darwin" ]; then
+        export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib/gcc/7:$LD_LIBRARY_PATH
+        export GS_FONTPATH=$GS_FONTPATH:~/Library/Fonts
+
+        ## Use GNU utils when available
+        export PATH=/usr/local/opt/coreutils/libexec/gnubin:$PATH
+        export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:$MANPATH
+
+        ## Add VisIt bin directory to PATH
+        export PATH=/Applications/VisIt.app/Contents/Resources/bin:$PATH
+
+        ## Add PGI to PATH
+        export PGI=/opt/pgi
+        export LM_LICENSE_FILE=$PGI/license.dat
+        export PATH=$PGI/osx86-64/17.10/bin:$PATH
+
+        ## Add PGI MPICH to PATH
+        export PATH=$PGI/osx86-64/2017/mpi/mpich/bin:$PATH
+
+        ## Compiler variables
+        export CC=gcc-7
+        export CXX=g++-7
+        export CPP=cpp-7
+        export CXXCPP=cpp-7
+        export FC=gfortran-7
+
+        ## Homebrew compilers
+        export HOMEBREW_CC=gcc-7
+        export HOMEBREW_CXX=g++-7
+        export HOMEBREW_CPP=cpp-7
+        export HOMEBREW_CXXCPP=cpp-7
+        export HOMEBREW_FC=gfortran-7
+        export HOMEBREW_VERBOSE=1
+
+        ## HDF5
+        export HDF5_DIR=/usr/local/Cellar/hdf5/1.10.0-patch1
+        export HDF5_ROOT=$HDF5_DIR
+        export HDF5_INCLUDE_DIRS=$HDF5_DIR/include
+        export HDF5_INCLUDE_OPTS=$HDF5_INCLUDE_DIRS
+
+        ## Pardiso
+        export PARDISO_DIR=/usr/local/pardiso
+     fi
 fi
 
 ## Add local directories to environment
@@ -134,6 +192,7 @@ export XNET=$HOME/xnet/trunk
 export CHIMERA_EXE=$WORKDIR/chimera_execute
 export XNET_EXE=$WORKDIR/xnet_execute
 export TRACER_EXE=$WORDIR/tracer_reader
+export MODEL_GENERATOR=$CHIMERA/Tools/Model_Generator
 
 export AMREX_ROOT=$HOME/AMReX-Codes
 export AMREX_DIR=$AMREX_ROOT/amrex
@@ -167,7 +226,10 @@ export MESA_DIR=$HOME/mesa
 export MESASDK_ROOT=$HOME/mesasdk
 export PGPLOT_DIR=$HOME/mesasdk/pgplot
 
-#export PARDISO_DIR=/usr/local/pardiso
+## Do any extra local initialization
+if [ -f $HOME/.bashrc.local ]; then
+    source $HOME/.bashrc.local
+fi
 
 ## Set appropriate colors
 use_color=false

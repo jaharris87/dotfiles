@@ -24,6 +24,7 @@ alias lsa="ls -oa"
 
 ## Set SVN colors
 alias svn="python $HOME/misc/svn-color/svn-color.py"
+alias svnlog="svn log -l 5 -v"
 
 ## Queue management (LSF for Summit, SLURM for NERSC machines, MOAB for other OLCF machines)
 if [ $HOST_SHORT == "summit" -o $HOST_SHORT == "summitdev" ]; then
