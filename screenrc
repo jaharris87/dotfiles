@@ -3,10 +3,13 @@
 #termcapinfo xterm* G0:is=\E[?4l\E>:ti@:te@
 termcapinfo xterm* 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'
 termcapinfo gnome* 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'
+termcapinfo screen* 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'
 termcapinfo xterm* ti@:te@
 termcapinfo gnome* ti@:te@
-termcapinfo putty* XT
 termcapinfo putty* ti@:te@
+termcapinfo screen* ti@:te@
+termcapinfo putty* XT
+#termcapinfo screen* XT
 #termcapinfo linux me=\E[m:AX
 
 # Use 256 colors
