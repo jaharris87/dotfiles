@@ -1,3 +1,7 @@
+#!/bin/bash
+
+set colored-stats on
+
 ## Enable scrolling through command history with command-line input using up/down arrows
 #"\e[A": history-search-backward
 #"\e[B": history-search-forward

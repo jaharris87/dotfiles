@@ -108,6 +108,7 @@ EXEC 01;31
 # image formats
 .avi  01;35
 .bmp  01;35
+.eps  01;35
 .fig  01;35
 .fli  01;35
 .gif  01;35
@@ -282,6 +283,10 @@ EXEC 01;31
 *README.md  01;37
 *ReadMe.md  01;37
 *readme.md  01;37
+.nml        01;37
+.NML        01;37
+.namelist   01;37
+.NAMELIST   01;37
 
 # tmp files
 *del 41;01;37

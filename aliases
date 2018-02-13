@@ -45,9 +45,9 @@ if [ $OLCF_HOST == "summit" -o $OLCF_HOST == "summitdev" ]; then
     alias bjobsp="bjobs -u all -p"
 
     ## Interactive job
-    alias bsubi="bsub -P CSC198 -nnodes 1 -W 00:30 -Is $SHELL"
-    alias bsubi_2nodes="bsub -P CSC198 -nnodes 2 -W 00:30 -Is $SHELL"
-    alias bsubi_8nodes="bsub -P CSC198 -nnodes 8 -W 00:30 -Is $SHELL"
+    alias bsubi="bsub -P $PROJID -nnodes 1 -W 00:30 -Is $SHELL"
+    alias bsubi_2nodes="bsub -P $PROJID -nnodes 2 -W 00:30 -Is $SHELL"
+    alias bsubi_8nodes="bsub -P $PROJID -nnodes 8 -W 00:30 -Is $SHELL"
 
     ## Count available nodes
     if [ $OLCF_HOST == "summitdev" ]; then
@@ -66,19 +66,19 @@ else
     alias qstatu="qstat -u $USER"
     alias showqu="showq -u $USER"
 
-    ## Show only jobs for other users in group (AST131)
-    AST131_USERS="barkerb,bronson,bruenn,buffaloe,eendeve,jaharris,jnova,jrosa1,lentz,raph,ryanl,samvm,tanner,yakunin1,elingerf,alexk,ranchu1,jrober50"
-    alias qstatg="qstat -u $AST131_USERS"
+    ## Show only jobs for other users in group
+    PROJ_USERS="barkerb,bronson,bruenn,buffaloe,eendeve,jaharris,jnova,jrosa1,lentz,raph,ryanl,samvm,tanner,yakunin1,elingerf,alexk,ranchu1,jrober50"
+    alias qstatg="qstat -u $PROJ_USERS"
 
     ## Interactive job
-    alias qsubi="qsub -I -A CSC198 -q debug -l walltime=01:00:00,nodes=1"
+    alias qsubi="qsub -I -A $PROJID -q debug -l walltime=01:00:00,nodes=1"
     if [ $OLCF_HOST == "rhea" ]; then
-        alias qsubi="qsub -I -A CSC198 -q batch -l walltime=01:00:00,nodes=1"
-        alias qsubiX="qsub -I -A CSC198 -q batch -l walltime=01:00:00,nodes=1 -X"
-        alias qsubi_gpu="qsub -I -A CSC198 -q batch -l walltime=01:00:00,nodes=1 -lpartition=gpu"
+        alias qsubi="qsub -I -A $PROJID -q batch -l walltime=01:00:00,nodes=1"
+        alias qsubiX="qsub -I -A $PROJID -q batch -l walltime=01:00:00,nodes=1 -X"
+        alias qsubi_gpu="qsub -I -A $PROJID -q batch -l walltime=01:00:00,nodes=1 -lpartition=gpu"
         alias qnodes_ok="qnodes | grep -A2 '^rhea[0-9]\+' | grep 'state = free' | wc -l"
     else
-        alias qsubi="qsub -I -A CSC198 -q debug -l walltime=01:00:00,nodes=1"
+        alias qsubi="qsub -I -A $PROJID -q debug -l walltime=01:00:00,nodes=1"
         alias qnodes_ok="qnodes | grep -A2 '^[0-9]\+' | grep 'state = free' | wc -l"
     fi
 
