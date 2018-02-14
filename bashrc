@@ -120,6 +120,9 @@ export HISTCONTROL=ignoredups
 export HISTFILESIZE=1000000
 export HISTSIZE=1000000
 
+## Default flags for less
+export LESS=eFRX
+
 ## Create lower-case PE_ENV (for use in modules)
 if [ ! -z ${PE_ENV+x} ]; then
     export LC_PE_ENV=$(echo ${PE_ENV} | tr A-Z a-z)
