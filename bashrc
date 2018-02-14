@@ -121,7 +121,7 @@ export HISTFILESIZE=1000000
 export HISTSIZE=1000000
 
 ## Default flags for less
-export LESS=eFRX
+export LESS=eFR
 
 ## Create lower-case PE_ENV (for use in modules)
 if [ ! -z ${PE_ENV+x} ]; then
