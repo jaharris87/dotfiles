@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ## Use custom terminal prompt
 yellow=$(tty -s && tput setaf 3)
 white=$(tty -s && tput setaf 7)
@@ -13,6 +15,35 @@ export PS1="\[$bold$yellow\]\u@\h\[$reset\]: \[$bold$white\]\w\[$reset\]> "
 
 ## Export commands to history as they are executed (allows shared history between screen sessions)
 #export PROMPT_COMMAND="history -a; history -c; history -r; ${PROMPT_COMMAND}"
+
+## Compare version numbers
+## source: https://stackoverflow.com/questions/4023830/how-to-compare-two-strings-in-dot-separated-version-format-in-bash
+## question author: https://askubuntu.com/users/235/jorge-castro
+## answer author: https://stackoverflow.com/users/26428/dennis-williamson
+vercomp () {
+    if [[ $1 == $2 ]]; then
+        return 0
+    fi
+    local IFS=.
+    local i ver1=($1) ver2=($2)
+    # fill empty fields in ver1 with zeros
+    for ((i=${#ver1[@]}; i<${#ver2[@]}; i++)); do
+        ver1[i]=0
+    done
+    for ((i=0; i<${#ver1[@]}; i++)); do
+        if [[ -z ${ver2[i]} ]]; then
+            # fill empty fields in ver2 with zeros
+            ver2[i]=0
+        fi
+        if ((10#${ver1[i]} > 10#${ver2[i]})); then
+            return 1
+        fi
+        if ((10#${ver1[i]} < 10#${ver2[i]})); then
+            return 2
+        fi
+    done
+    return 0
+}
 
 ## Who am I?
 export USER=$(whoami)
@@ -39,7 +70,7 @@ fi
 if [[ $FQDN = *"summit.olcf.ornl.gov" ]]; then
     export HOST_SHORT="summit"
 else
-    export HOST_SHORT=$(echo $HOSTNAME | sed 's/\(-[a-zA-Z0-9]*\)\?[0-9]*$//')
+    export HOST_SHORT=$(echo ${HOSTNAME%%.*} | sed 's/\(-[a-zA-Z0-9]*\)\?[0-9]*$//')
 fi
 
 ## Set default project ID
@@ -73,8 +104,14 @@ fi
 ## Check the window size after each command and, if necessary, update the values of LINES and COLUMNS.
 shopt -s checkwinsize
 
-## Do not add space after tab-complete of directory
-shopt -s direxpand
+## Do not add space after tab-complete of directory (only in versions of bash >= 4.2.29)
+bashver=$(echo ${BASH_VERSINFO[@]:0:3} | tr ' ' '.')
+vertest=$(vercomp $bashver 4.2.29)
+vertestresult=$?
+if [ $vertestresult -lt 2 ]; then
+    shopt -s direxpand
+fi
+unset bashver vertest vertestresult
 
 ## Ignore duplicate history entries
 export HISTCONTROL=ignoredups
