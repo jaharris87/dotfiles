@@ -1,0 +1,40 @@
+tap "caskroom/cask"
+tap "homebrew/bundle"
+tap "homebrew/core"
+brew "ack"
+brew "bash"
+brew "binutils"
+brew "cairo"
+brew "cmake"
+brew "coreutils"
+brew "diffutils"
+brew "emacs"
+brew "ffmpeg"
+brew "findutils", args: ["with-default-names"]
+brew "gawk"
+brew "gcc"
+brew "git"
+brew "gnu-sed", args: ["with-default-names"]
+brew "gnu-tar", args: ["with-default-names"]
+brew "gnu-which", args: ["with-default-names"]
+brew "gnuplot", args: ["with-cairo", "with-x11"]
+brew "grep", args: ["with-default-names"]
+brew "gsl"
+brew "gzip"
+brew "jq"
+brew "less"
+brew "lzip"
+brew "make", args: ["with-default-names"]
+brew "pbzip2"
+brew "rsync"
+brew "subversion"
+brew "unrar"
+brew "unzip"
+brew "vim"
+brew "wget"
+brew "xz"
+cask "inkscape"
+cask "mactex"
+cask "skim"
+cask "slack"
+cask "texstudio"
