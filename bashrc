@@ -131,6 +131,7 @@ fi
 ## Number of processors on this node
 if [ -f /proc/cpuinfo ]; then
     export NPROC=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
+    export NPROCS=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
 fi
 
 ## Set facility/machine specific environment variables
@@ -265,6 +266,7 @@ export HELMHOLTZ_PATH=$HOME/helmholtz
 export MESA_DIR=$HOME/mesa
 export MESASDK_ROOT=$HOME/mesasdk
 export PGPLOT_DIR=$HOME/mesasdk/pgplot
+export MESA_CACHES_DIR=$WORKDIR/mesa_execute/data
 
 ## Do any extra local initialization
 if [ -f $HOME/.bashrc.local ]; then
