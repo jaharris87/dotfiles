@@ -121,7 +121,7 @@ export HISTFILESIZE=1000000
 export HISTSIZE=1000000
 
 ## Default flags for less
-export LESS=eFR
+#export LESS=eFR
 
 ## Create lower-case PE_ENV (for use in modules)
 if [ ! -z ${PE_ENV+x} ]; then
@@ -233,7 +233,7 @@ export XNET=$HOME/xnet/trunk
 export CHIMERA_EXE=$WORKDIR/chimera_execute
 export XNET_EXE=$WORKDIR/xnet_execute
 export TRACER_EXE=$WORDIR/tracer_reader
-export MODEL_GENERATOR=$CHIMERA/Tools/Model_Generator
+export MODEL_GENERATOR=$INITIAL_MODELS/Model_Generator
 
 export AMREX_ROOT=$HOME/AMReX-Codes
 export AMREX_DIR=$AMREX_ROOT/amrex
