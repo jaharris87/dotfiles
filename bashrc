@@ -51,6 +51,13 @@ export USER=$(whoami)
 ## Get full hostname, including domain (i.e. Fully Qualified Domain Name)
 export FQDN=$(hostname -f)
 
+## Trim extras off HOSTNAME (e.g. -ext2, edison05, cori10)
+if [[ $FQDN = *"summit.olcf.ornl.gov" ]]; then
+    export HOST_SHORT="summit"
+else
+    export HOST_SHORT=$(echo ${HOSTNAME%%.*} | sed 's/\(-[a-zA-Z0-9]*\)\?[0-9]*$//')
+fi
+
 ## Get computing facility name (e.g. NERSC, OLCF, ALCF, NCSA)
 if [[ $FQDN = *"ornl.gov" ]]; then
     export FACILITY="OLCF"
@@ -62,15 +69,10 @@ elif [[ $FQDN = *"illinois.edu" ]]; then
     export FACILITY="NCSA"
 elif [[ $FQDN = *"tennessee.edu" ]]; then
     export FACILITY="NICS"
+elif [[ $FQDN = "summitdev"* ]]; then
+    export FACILITY="OLCF"
 else
     export FACILITY="local"
-fi
-
-## Trim extras off HOSTNAME (e.g. -ext2, edison05, cori10)
-if [[ $FQDN = *"summit.olcf.ornl.gov" ]]; then
-    export HOST_SHORT="summit"
-else
-    export HOST_SHORT=$(echo ${HOSTNAME%%.*} | sed 's/\(-[a-zA-Z0-9]*\)\?[0-9]*$//')
 fi
 
 ## Set default project ID
