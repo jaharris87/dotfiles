@@ -1,11 +1,14 @@
 #!/bin/bash
 
+## If not running interactively, don't do anything
+[[ $- == *i* ]] || return
+
 ## Use custom terminal prompt
-yellow=$(tty -s && tput setaf 3)
-white=$(tty -s && tput setaf 7)
-black=$(tty -s && tput setaf 0)
-bold=$(tty -s && tput bold)
-reset=$(tty -s && tput sgr0)
+yellow=$(tput setaf 3)
+white=$(tput setaf 7)
+black=$(tput setaf 0)
+bold=$(tput bold)
+reset=$(tput sgr0)
 
 function parse_git_branch {
    git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
@@ -122,8 +125,10 @@ export HISTCONTROL=ignoredups
 export HISTFILESIZE=1000000
 export HISTSIZE=1000000
 
-## Default flags for less
-#export LESS=eFR
+## Useful flags for 'less' (including color support)
+export LESS="--ignore-case --status-column --RAW-CONTROL-CHARS"
+# Use colors for less, man, etc.
+[[ -f ~/.LESS_TERMCAP ]] && . ~/.LESS_TERMCAP
 
 ## Create lower-case PE_ENV (for use in modules)
 if [ ! -z ${PE_ENV+x} ]; then
@@ -152,6 +157,14 @@ if [ $FACILITY == "OLCF" ]; then
     export PROJHOME=/ccs/proj/$PROJID
     export PROJWORKDIR=$PROJWORK/$PROJID/$USER
     export HPSS_PROJDIR=/proj/$PROJID
+    ## Load newer version of VIM that supports undofile
+    if [ $HOST_SHORT == "titan" ]; then
+       module load vim
+    fi
+    ## Load newer git (titan already does this in system-wide init)
+    if [ ! $HOST_SHORT == "titan" ]; then
+       module load git
+    fi
 elif [ $FACILITY == "NERSC" ]; then
     export WORKDIR=$CSCRATCH
     export PROJHOME=/project/projectdirs/$PROJID

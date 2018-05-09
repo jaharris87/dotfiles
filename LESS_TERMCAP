@@ -1,0 +1,20 @@
+#!/bin/bash
+
+## tput basic colors:
+# 0 - black
+# 1 - red
+# 2 - green
+# 3 - yellow
+# 4 - blue
+# 5 - magenta
+# 6 - cyan
+# 7 - white
+
+## Less Colors for Man Pages
+export LESS_TERMCAP_mb=$(tput bold; tput setaf 1)
+export LESS_TERMCAP_md=$(tput bold; tput setaf 67)
+export LESS_TERMCAP_me=$(tput sgr0)
+export LESS_TERMCAP_so=$(tput rev; tput setaf 230; tput setab 236)
+export LESS_TERMCAP_se=$(tput rmso; tput sgr0)
+export LESS_TERMCAP_us=$(tput smul; tput setaf 223)
+export LESS_TERMCAP_ue=$(tput rmul; tput sgr0)
