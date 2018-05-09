@@ -702,6 +702,7 @@ if has("fname_case")
 endif
 au BufNewFile,BufRead   *.f,*.for,*.fortran,*.fpp,*.ftn,*.f77,*.f90,*.f95,probin*  setf fortran
 au BufNewFile,BufRead   *.nml,*.namelist setf fortran
+au BufNewFile,BufRead   *.fh setf fortran
 
 " Framescript
 au BufNewFile,BufRead *.fsl			setf framescript
