@@ -126,7 +126,7 @@ export HISTFILESIZE=1000000
 export HISTSIZE=1000000
 
 ## Useful flags for 'less' (including color support)
-export LESS="--ignore-case --status-column --RAW-CONTROL-CHARS"
+export LESS="--quit-if-one-screen --ignore-case --status-column --RAW-CONTROL-CHARS"
 # Use colors for less, man, etc.
 [[ -f ~/.LESS_TERMCAP ]] && . ~/.LESS_TERMCAP
 
