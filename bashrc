@@ -125,6 +125,9 @@ export HISTCONTROL=ignoredups
 export HISTFILESIZE=1000000
 export HISTSIZE=1000000
 
+## Set default editor
+export EDITOR=vim
+
 ## Useful flags for 'less' (including color support)
 export LESS="--quit-if-one-screen --ignore-case --status-column --RAW-CONTROL-CHARS"
 # Use colors for less, man, etc.
@@ -162,7 +165,7 @@ if [ $FACILITY == "OLCF" ]; then
        module load vim
     fi
     ## Load newer git (titan already does this in system-wide init)
-    if [ ! $HOST_SHORT == "titan" ]; then
+    if [ $HOST_SHORT == "summit" -o $HOST_SHORT == "summitdev" ]; then
        module load git
     fi
 elif [ $FACILITY == "NERSC" ]; then
@@ -234,7 +237,8 @@ fi
 
 ## Add local directories to environment
 export PATH=$HOME/bin:$PATH
-export MANPATH=$HOME/man:$MANPATH
+export MANPATH=$HOME/share/man:$MANPATH
+export INFOPATH=$HOME/share/info:$MANPATH
 export LD_LIBRARY_PATH=$HOME/lib:$LD_LIBRARY_PATH
 
 ## Set global environment variables (same on all machines)
