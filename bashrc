@@ -129,7 +129,7 @@ export HISTSIZE=1000000
 export EDITOR=vim
 
 ## Useful flags for 'less' (including color support)
-export LESS="--quit-if-one-screen --ignore-case --status-column --RAW-CONTROL-CHARS"
+export LESS="--ignore-case --status-column --RAW-CONTROL-CHARS"
 # Use colors for less, man, etc.
 [[ -f ~/.LESS_TERMCAP ]] && . ~/.LESS_TERMCAP
 
