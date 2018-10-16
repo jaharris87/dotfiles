@@ -79,7 +79,7 @@ set binary
 set noeol
 
 " Sets sizes of several buffers when switcing between files
-set viminfo='100,<500,s100,h,n~/.vim/cache/.viminfo
+set viminfo='100,<1000,s100,:10000,h,n~/.vim/cache/.viminfo
 "set viminfo=%,<800,'100,/50,:100,h,f0,n~/.vim/cache/.viminfo
 "           | |    |    |   |    | |  + viminfo file path
 "           | |    |    |   |    | + file marks 0-9,A-Z 0=NOT stored
@@ -164,7 +164,7 @@ au! BufRead,BufNewFile controls_* set filetype=fortran
 au! BufRead,BufNewFile [mM]akefile.h* set filetype=make
 
 " Don't use fixed-line width syntax or pattern matching... ever
-let b:fortran_fixed_source = 0
+"let b:fortran_fixed_source = 0
 
 " Use backtick for escape
 ":imap ` <Esc>

@@ -191,7 +191,7 @@ elif [ $FACILITY == "local" ]; then
 
     ## Mac OS X
     if [ "$(uname)" == "Darwin" ]; then
-        export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib/gcc/7:$LD_LIBRARY_PATH
+        export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib/gcc/8:$LD_LIBRARY_PATH
         export GS_FONTPATH=$GS_FONTPATH:~/Library/Fonts
 
         ## Use GNU utils when available
@@ -204,34 +204,40 @@ elif [ $FACILITY == "local" ]; then
         ## Add PGI to PATH
         export PGI=/opt/pgi
         export LM_LICENSE_FILE=$PGI/license.dat
-        export PATH=$PGI/osx86-64/17.10/bin:$PATH
+        export PATH=$PGI/osx86-64/18.4/bin:$PATH
 
         ## Add PGI MPICH to PATH
-        export PATH=$PGI/osx86-64/2017/mpi/mpich/bin:$PATH
+        #export PATH=$PGI/osx86-64/2018/mpi/mpich/bin:$PATH
 
         ## Compiler variables
-        export CC=gcc-7
-        export CXX=g++-7
-        export CPP=cpp-7
-        export CXXCPP=cpp-7
-        export FC=gfortran-7
+        export CC=gcc-8
+        export CXX=g++-8
+        export CPP=cpp-8
+        export CXXCPP=cpp-8
+        export FC=gfortran-8
 
         ## Homebrew compilers
-        export HOMEBREW_CC=gcc-7
-        export HOMEBREW_CXX=g++-7
-        export HOMEBREW_CPP=cpp-7
-        export HOMEBREW_CXXCPP=cpp-7
-        export HOMEBREW_FC=gfortran-7
+        export HOMEBREW_CC=gcc-8
+        export HOMEBREW_CXX=g++-8
+        export HOMEBREW_CPP=cpp-8
+        export HOMEBREW_CXXCPP=cpp-8
+        export HOMEBREW_FC=gfortran-8
         export HOMEBREW_VERBOSE=1
 
+        ## Open-MPI
+        export OMPI_DIR=/usr/local/Cellar/open-mpi/3.1.2
+        export OMPI_ROOT=$OMPI_DIR
+
         ## HDF5
-        export HDF5_DIR=/usr/local/Cellar/hdf5/1.10.0-patch1
+        export HDF5_DIR=/usr/local/Cellar/hdf5/1.10.3
         export HDF5_ROOT=$HDF5_DIR
         export HDF5_INCLUDE_DIRS=$HDF5_DIR/include
         export HDF5_INCLUDE_OPTS=$HDF5_INCLUDE_DIRS
 
         ## Pardiso
         export PARDISO_DIR=/usr/local/pardiso
+        export PARDISO_LIC_PATH=$PARDISO_DIR
+        export PARDISOLICMESSAGE=1
      fi
 fi
 
@@ -277,8 +283,10 @@ export FLASH_DIR=$PROJWORKDIR/FLASHOR
 export XNET_FLASH=$FLASH_DIR/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
 
 export MAGMA_DIR=$HOME/magma-2.3.0
+export MAGMA_ROOT=$MAGMA_DIR
 
-export HYPRE_PATH=$HOME/hypre
+export HYPRE_DIR=$HOME/hypre
+export HYPRE_ROOT=$HYPRE_DIR
 
 export HELMHOLTZ_PATH=$HOME/helmholtz
 
