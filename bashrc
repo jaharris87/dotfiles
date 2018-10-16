@@ -164,23 +164,39 @@ if [ $FACILITY == "OLCF" ]; then
     export PROJHOME=/ccs/proj/$PROJID
     export PROJWORKDIR=$PROJWORK/$PROJID/$USER
     export HPSS_PROJDIR=/proj/$PROJID
-    ## Load newer version of VIM that supports undofile
     if [ $HOST_SHORT == "titan" ]; then
+        ## Load newer version of VIM that supports undofile
        module load vim
+       ## Load newer subversion
+       module load subversion
     fi
-    ## Load newer git (titan already does this in system-wide init)
     if [ $HOST_SHORT == "summit" -o $HOST_SHORT == "summitdev" ]; then
+       ## Load newer git (titan already does this in system-wide init)
        module load git
+       ## Load newer subversion
+       module load subversion
     fi
+    ## Add manually built diffutils to paths
+    export PATH=$HOME/sw/diffutils_$HOST_SHORT/bin:$PATH
+    export MANPATH=$HOME/sw/diffutils_$HOST_SHORT/share/man:$MANPATH
+    export INFOPATH=$HOME/sw/diffutils_$HOST_SHORT/share/info:$MANPATH
 elif [ $FACILITY == "NERSC" ]; then
     export WORKDIR=$CSCRATCH
     export PROJHOME=/project/projectdirs/$PROJID
     export PROJWORKDIR=$WORKDIR
     export HPSS_PROJDIR=/home/projects/$PROJID
+    ## KNL by default
     if [ $NERSC_HOST == "cori" ]; then
         module swap PrgEnv-$LC_PE_ENV PrgEnv-intel
         module swap craype-$CRAY_CPU_TARGET craype-mic-knl
+        ## Load newer subversion
+        module load subversion
+    elif [ $NERSC_HOST == "edison" ]; then
+        module swap PrgEnv-$LC_PE_ENV PrgEnv-intel
+        ## Load newer subversion
+        module load subversion
     fi
+    ## Unlaod darhsan
     module unload darshan
 elif [ $FACILITY == "NCSA" ]; then
     export WORKDIR=$SCRATCH
@@ -298,6 +314,8 @@ export MESA_DIR=$HOME/mesa
 export MESASDK_ROOT=$HOME/mesasdk
 export PGPLOT_DIR=$HOME/mesasdk/pgplot
 export MESA_CACHES_DIR=$WORKDIR/mesa_execute/data
+
+export HACKATHON=$MEMBERWORK/stf006/gpuhackathon
 
 ## Do any extra local initialization
 if [ -f $HOME/.bashrc.local ]; then
