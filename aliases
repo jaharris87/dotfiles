@@ -27,13 +27,12 @@ alias svn="python $HOME/misc/svn-color/svn-color.py"
 alias svnlog="svn log -l 5 -v"
 
 ## Set diff colors (default palette is --palette="rs=0:hd=1:ad=32:de=31:ln=36") (only available in diffutils version >= 3.4)
-## Error when trying to check version on titan: "cannot execute binary file"
 diffver=$(diff -v | sed -n '1 s/^.*\s\([0-9.]*\)$/\1/p')
-#vertest=$(vercomp $diffver 3.4)
-#vertestresult=$?
-#if [ $vertestresult -lt 2 ]; then
+vertest=$(vercomp $diffver 3.4)
+vertestresult=$?
+if [ $vertestresult -lt 2 ]; then
     alias diff="diff --color=auto"
-#fi
+fi
 
 ## Queue management (LSF for Summit, SLURM for NERSC machines, MOAB for other OLCF machines)
 if [ $HOST_SHORT == "summit" -o $HOST_SHORT == "summitdev" ]; then
