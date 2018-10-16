@@ -58,6 +58,8 @@ export FQDN=$(hostname -f)
 ## Trim extras off HOSTNAME (e.g. -ext2, edison05, cori10)
 if [[ $FQDN = *"summit.olcf.ornl.gov" ]]; then
     export HOST_SHORT="summit"
+elif [[ $FQDN = *"ascent.olcf.ornl.gov" ]]; then
+    export HOST_SHORT="ascent"
 else
     export HOST_SHORT=$(echo ${HOSTNAME%%.*} | sed 's/\(-[a-zA-Z0-9]*\)\?[0-9]*$//')
 fi
@@ -81,7 +83,11 @@ fi
 
 ## Set default project ID
 if [ $FACILITY == "OLCF" ]; then
-    export PROJID="csc198"
+    if [ $HOST_SHORT == "ascent" ]; then
+        export PROJID="gen109"
+    else
+        export PROJID="csc198"
+    fi
     export PROJ_USERS=$(getent group $PROJID | sed 's/^.*://')
 elif [ $FACILITY == "NERSC" ]; then
     export PROJID="chimera"
@@ -149,7 +155,17 @@ if [ -f /proc/cpuinfo ]; then
 fi
 
 ## Set facility/machine specific environment variables
-if [ $FACILITY == "OLCF" ]; then
+if [ $HOST_SHORT == "ascent" ]; then
+    export MEMBERWORK=/gpfs/wolf/scratch/$USER
+    export PROJWORK=/gpfs/wolf/proj-shared
+    export WORLDWORK=/gpfs/wolf/world-shared
+    export WORKDIR=$MEMBERWORK/$PROJID
+    export PROJWORKDIR=$PROJWORK/$PROJID/$USER
+    ## Load newer git (titan already does this in system-wide init)
+    module load git
+    ## Load newer subversion
+    module load subversion
+elif [ $FACILITY == "OLCF" ]; then
     ## Scratch directory environment variables for Summit/SummitDev are not yet created by default
     if [ $HOST_SHORT == "summitdev" ]; then
         export MEMBERWORK=/lustre/atlas/scratch/$USER
@@ -302,7 +318,7 @@ export BOXLIB_HOME=$BOXLIB_ROOT/BoxLib
 export FLASH_DIR=$PROJWORKDIR/FLASHOR
 export XNET_FLASH=$FLASH_DIR/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
 
-export MAGMA_DIR=$HOME/magma-2.3.0
+export MAGMA_DIR=$HOME/magma
 export MAGMA_ROOT=$MAGMA_DIR
 
 export HYPRE_DIR=$HOME/hypre
