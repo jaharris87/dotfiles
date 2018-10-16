@@ -110,6 +110,9 @@ fi
 ## Check the window size after each command and, if necessary, update the values of LINES and COLUMNS.
 shopt -s checkwinsize
 
+## Enable extended globbing
+shopt -s extglob
+
 ## Do not add space after tab-complete of directory (only in versions of bash >= 4.2.29)
 bashver=$(echo ${BASH_VERSINFO[@]:0:3} | tr ' ' '.')
 vertest=$(vercomp $bashver 4.2.29)
