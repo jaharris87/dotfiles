@@ -160,11 +160,16 @@ if [ $HOST_SHORT == "ascent" ]; then
     export PROJWORK=/gpfs/wolf/proj-shared
     export WORLDWORK=/gpfs/wolf/world-shared
     export WORKDIR=$MEMBERWORK/$PROJID
+    export PROJHOME=/ccs/proj/$PROJID
     export PROJWORKDIR=$PROJWORK/$PROJID/$USER
     ## Load newer git (titan already does this in system-wide init)
     module load git
     ## Load newer subversion
     module load subversion
+    ## Add manually built diffutils to paths
+    export PATH=$HOME/sw/diffutils_$HOST_SHORT/bin:$PATH
+    export MANPATH=$HOME/sw/diffutils_$HOST_SHORT/share/man:$MANPATH
+    export INFOPATH=$HOME/sw/diffutils_$HOST_SHORT/share/info:$MANPATH
 elif [ $FACILITY == "OLCF" ]; then
     ## Scratch directory environment variables for Summit/SummitDev are not yet created by default
     if [ $HOST_SHORT == "summitdev" ]; then
@@ -331,7 +336,7 @@ export MESASDK_ROOT=$HOME/mesasdk
 export PGPLOT_DIR=$HOME/mesasdk/pgplot
 export MESA_CACHES_DIR=$WORKDIR/mesa_execute/data
 
-export HACKATHON=$MEMBERWORK/stf006/gpuhackathon
+export HACKATHON=$MEMBERWORK/gen109/gpuhackathon
 
 ## Do any extra local initialization
 if [ -f $HOME/.bashrc.local ]; then
