@@ -201,6 +201,12 @@ if [[ $FACILITY = "OLCF" ]]; then
         export PATH=$HOME/sw/$HOST_SHORT/pbzip2/bin:$PATH
         export MANPATH=$HOME/sw/$HOST_SHORT/pbzip2/share/man:$MANPATH
     fi
+    ## Add manually built screen to paths
+    if [[ -d $HOME/sw/$HOST_SHORT/screen ]]; then
+        export PATH=$HOME/sw/$HOST_SHORT/screen/bin:$PATH
+        export MANPATH=$HOME/sw/$HOST_SHORT/screen/share/man:$MANPATH
+        export INFOPATH=$HOME/sw/$HOST_SHORT/screen/share/info:$MANPATH
+    fi
 elif [[ $FACILITY = "NERSC" ]]; then
     export WORKDIR=$CSCRATCH
     export PROJHOME=/project/projectdirs/$PROJID
