@@ -232,12 +232,13 @@ elif [ $FACILITY == "local" ]; then
 
     ## Mac OS X
     if [ "$(uname)" == "Darwin" ]; then
-        export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib/gcc/8:$LD_LIBRARY_PATH
+        export LD_LIBRARY_PATH=/opt/local/lib:$LD_LIBRARY_PATH
+        export MANPATH=/opt/local/share/man:$MANPATH
         export GS_FONTPATH=$GS_FONTPATH:~/Library/Fonts
 
         ## Use GNU utils when available
-        export PATH=/usr/local/opt/coreutils/libexec/gnubin:$PATH
-        export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:$MANPATH
+        export PATH=/opt/local/libexec/gnubin:$PATH
+        #export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:$MANPATH
 
         ## Add VisIt bin directory to PATH
         export PATH=/Applications/VisIt.app/Contents/Resources/bin:$PATH
@@ -245,32 +246,32 @@ elif [ $FACILITY == "local" ]; then
         ## Add PGI to PATH
         export PGI=/opt/pgi
         export LM_LICENSE_FILE=$PGI/license.dat
-        export PATH=$PGI/osx86-64/18.4/bin:$PATH
+        export PATH=$PGI/osx86-64/19.4/bin:$PATH
 
         ## Add PGI MPICH to PATH
         #export PATH=$PGI/osx86-64/2018/mpi/mpich/bin:$PATH
 
         ## Compiler variables
-        export CC=gcc-8
-        export CXX=g++-8
-        export CPP=cpp-8
-        export CXXCPP=cpp-8
-        export FC=gfortran-8
+        #export CC=gcc-9
+        #export CXX=g++-9
+        #export CPP=cpp-9
+        #export CXXCPP=cpp-9
+        #export FC=gfortran-9
 
         ## Homebrew compilers
-        export HOMEBREW_CC=gcc-8
-        export HOMEBREW_CXX=g++-8
-        export HOMEBREW_CPP=cpp-8
-        export HOMEBREW_CXXCPP=cpp-8
-        export HOMEBREW_FC=gfortran-8
-        export HOMEBREW_VERBOSE=1
+        export HOMEBREW_CC=gcc-9
+        export HOMEBREW_CXX=g++-9
+        export HOMEBREW_CPP=cpp-9
+        export HOMEBREW_CXXCPP=cpp-9
+        export HOMEBREW_FC=gfortran-9
+        #export HOMEBREW_VERBOSE=1
 
         ## Open-MPI
-        export OMPI_DIR=/usr/local/Cellar/open-mpi/3.1.2
+        export OMPI_DIR=/opt/local
         export OMPI_ROOT=$OMPI_DIR
 
         ## HDF5
-        export HDF5_DIR=/usr/local/Cellar/hdf5/1.10.3
+        export HDF5_DIR=/opt/local
         export HDF5_ROOT=$HDF5_DIR
         export HDF5_INCLUDE_DIRS=$HDF5_DIR/include
         export HDF5_INCLUDE_OPTS=$HDF5_INCLUDE_DIRS
@@ -295,11 +296,12 @@ export RADHYD=$HOME/chimera/trunk/RadHyd
 export TRACER_READER=$HOME/chimera/trunk/Tools/tracer_reader
 export INITIAL_MODELS=$HOME/chimera/trunk/Initial_Models
 export SERIES_D=$HOME/chimera/trunk/Initial_Models/Series-D
-export XNET=$HOME/xnet/trunk
 export CHIMERA_EXE=$WORKDIR/chimera_execute
-export XNET_EXE=$WORKDIR/xnet_execute
 export TRACER_EXE=$WORDIR/tracer_reader
 export MODEL_GENERATOR=$INITIAL_MODELS/Model_Generator
+
+export WEAKLIB_DIR=$HOME/weaklib
+export THORNADO_DIR=$HOME/thornado
 
 export AMREX_ROOT=$HOME/AMReX-Codes
 export AMREX_DIR=$AMREX_ROOT/amrex
@@ -319,6 +321,8 @@ export BOXLIB_ROOT=$HOME/BoxLib-Codes
 export BOXLIB_DIR=$BOXLIB_ROOT/BoxLib
 export BOXLIB_HOME=$BOXLIB_ROOT/BoxLib
 #export BOXLIB_USE_MPI_WRAPPERS=1
+
+export XNET=$STARKILLER_ROOT/XNet
 
 export FLASH_DIR=$PROJWORKDIR/FLASHOR
 export XNET_FLASH=$FLASH_DIR/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
