@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## If not running interactively, don't do anything
-[[ $- == *i* ]] || return
+[[ $- = *i* ]] || return
 
 ## Use custom terminal prompt
 yellow=$(tput setaf 3)
@@ -24,7 +24,7 @@ export PS1="\[$bold$yellow\]\u@\h\[$reset\]: \[$bold$white\]\w\[$reset\]> "
 ## question author: https://askubuntu.com/users/235/jorge-castro
 ## answer author: https://stackoverflow.com/users/26428/dennis-williamson
 vercomp () {
-    if [[ $1 == $2 ]]; then
+    if [[ $1 = $2 ]]; then
         return 0
     fi
     local IFS=.
@@ -61,40 +61,40 @@ export HOST_SHORT="$(echo ${FQDN} | \
       -e 's/[-0-9]*$//')"
 
 ## Get computing facility name (e.g. NERSC, OLCF, ALCF, NCSA)
-if [ $FQDN = "*ornl.gov" ] || \
-   [ $HOST_SHORT = "summitdev" ] || \
-   [  $HOST_SHORT = "lyra" ]; then
+if [[ $FQDN = *"ornl.gov" || \
+      $HOST_SHORT = "summitdev" || \
+      $HOST_SHORT = "lyra" ]]; then
     export FACILITY="OLCF"
-elif [ $FQDN = "*nersc.gov" ]; then
+elif [[ $FQDN = *"nersc.gov" ]]; then
     export FACILITY="NERSC"
-elif [ $FQDN = "*anl.gov" ]; then
+elif [[ $FQDN = *"anl.gov" ]]; then
     export FACILITY="ALCF"
-elif [ $FQDN = "*tennessee.edu" ]; then
+elif [[ $FQDN = *"tennessee.edu" ]]; then
     export FACILITY="NICS"
 else
     export FACILITY="local"
 fi
 
 ## Set default project ID
-if [ $FACILITY == "OLCF" ]; then
-    if [ $HOST_SHORT == "ascent" ]; then
+if [[ $FACILITY = "OLCF" ]]; then
+    if [[ $HOST_SHORT = "ascent" ]]; then
         export PROJID="gen109"
-    elif [ $HOST_SHORT == "summit" ]; then
+    elif [[ $HOST_SHORT = "summit" ]]; then
         export PROJID="ast136"
     else
         export PROJID="stf006"
     fi
     export PROJ_USERS=$(getent group $PROJID | sed 's/^.*://')
-elif [ $FACILITY == "NERSC" ]; then
+elif [[ $FACILITY = "NERSC" ]]; then
     export PROJID="chimera"
     export PROJ_USERS=$(getent group $PROJID | sed 's/^.*://')
-elif [ $FACILITY == "ALCF" ]; then
+elif [[ $FACILITY = "ALCF" ]]; then
     export PROJID=""
     export PROJ_USERS=""
-elif [ $FACILITY == "NCSA" ]; then
+elif [[ $FACILITY = "NCSA" ]]; then
     export PROJID="banp"
     export PROJ_USERS=$(getent group PRAC_$PROJID | sed 's/^.*://')
-elif [ $FACILITY == "NICS" ]; then
+elif [[ $FACILITY = "NICS" ]]; then
     export PROJID="UT-MEZZ-AACE"
     export PROJ_USERS=""
 else
@@ -103,9 +103,9 @@ else
 fi
 
 ## Load custom aliases
-if [ -f $HOME/.aliases.$HOST_SHORT ]; then
+if [[ -f $HOME/.aliases.$HOST_SHORT ]]; then
     . $HOME/.aliases.$HOST_SHORT
-elif [ -f $HOME/.aliases ]; then
+elif [[ -f $HOME/.aliases ]]; then
     . $HOME/.aliases
 fi
 
@@ -119,7 +119,7 @@ shopt -s extglob
 bashver=$(echo ${BASH_VERSINFO[@]:0:3} | tr ' ' '.')
 vertest=$(vercomp $bashver 4.2.29)
 vertestresult=$?
-[ $vertestresult -lt 2 ] && shopt -s direxpand
+[[ $vertestresult -lt 2 ]] && shopt -s direxpand
 unset bashver vertest vertestresult
 
 ## Ignore duplicate history entries
@@ -135,26 +135,26 @@ export EDITOR=vim
 ## Useful flags for 'less' (including color support)
 export LESS="--ignore-case --status-column --RAW-CONTROL-CHARS"
 # Use colors for less, man, etc.
-[ -f ~/.LESS_TERMCAP ] && . ~/.LESS_TERMCAP
+[[ -f ~/.LESS_TERMCAP ]] && . ~/.LESS_TERMCAP
 
 ## Create lower-case PE_ENV (for use in modules)
-[ ! -z ${PE_ENV+x} ] && export LC_PE_ENV=$(echo ${PE_ENV} | tr A-Z a-z)
+[[ ! -z ${PE_ENV+x} ]] && export LC_PE_ENV=$(echo ${PE_ENV} | tr A-Z a-z)
 
 ## Number of processors on this node
-if [ -f /proc/cpuinfo ]; then
+if [[ -f /proc/cpuinfo ]]; then
     export NPROC=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
     export NPROCS=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
 fi
 
 ## Set facility/machine specific environment variables
-if [ $FACILITY == "OLCF" ]; then
+if [[ $FACILITY = "OLCF" ]]; then
     ## Scratch directory environment variables for Summit/SummitDev are not yet created by default
-    if [ -d /gpfs/alpine ]; then
+    if [[ -d /gpfs/alpine ]]; then
         ## Summit, SummitDev, Peak, Rhea
         export MEMBERWORK=/gpfs/alpine/scratch/$USER
         export PROJWORK=/gpfs/alpine/proj-shared
         export WORLDWORK=/gpfs/alpine/world-shared
-    elif [ -d /gpfs/wolf ]; then
+    elif [[ -d /gpfs/wolf ]]; then
         ## Ascent
         export MEMBERWORK=/gpfs/wolf/scratch/$USER
         export PROJWORK=/gpfs/wolf/proj-shared
@@ -165,66 +165,66 @@ if [ $FACILITY == "OLCF" ]; then
         export PROJWORK=$HOME
         export WORLDWORK=$HOME
     fi
-    [ -d $MEMBERWORK/$PROJID ] && export WORKDIR=$MEMBERWORK/$PROJID || export WORKDIR=$HOME
-    [ -d /ccs/proj/$PROJID ] && export PROJHOME=/ccs/proj/$PROJID || export PROJHOME=$PROJWORK
-    [ -d $PROJWORK/$PROJID/$USER ] && export PROJWORKDIR=$PROJWORK/$PROJID/$USER || export PROJWORKDIR=$WORKDIR
+    [[ -d $MEMBERWORK/$PROJID ]] && export WORKDIR=$MEMBERWORK/$PROJID || export WORKDIR=$HOME
+    [[ -d /ccs/proj/$PROJID ]] && export PROJHOME=/ccs/proj/$PROJID || export PROJHOME=$PROJWORK
+    [[ -d $PROJWORK/$PROJID/$USER ]] && export PROJWORKDIR=$PROJWORK/$PROJID/$USER || export PROJWORKDIR=$WORKDIR
     export HPSS_PROJDIR=/proj/$PROJID
     ## If system has Lmod ...
-    if [ ! -z ${LMOD_CMD+x} ]; then
+    if [[ ! -z ${LMOD_CMD+x} ]]; then
       ## ... Add custom modules to path
-      [ -d $WORLDWORK/$USER/modulefiles/$HOST_SHORT ] && module use $WORLDWORK/$USER/modulefiles/$HOST_SHORT
-      [ -d $PROJHOME/modulefiles/$HOST_SHORT ] && module use $PROJHOME/modulefiles/$HOST_SHORT
-      [ -d $HOME/modulefiles/$HOST_SHORT ] && module use $HOME/modulefiles/$HOST_SHORT
+      [[ -d $WORLDWORK/$USER/modulefiles/$HOST_SHORT ]] && module use $WORLDWORK/$USER/modulefiles/$HOST_SHORT
+      [[ -d $PROJHOME/modulefiles/$HOST_SHORT ]] && module use $PROJHOME/modulefiles/$HOST_SHORT
+      [[ -d $HOME/modulefiles/$HOST_SHORT ]] && module use $HOME/modulefiles/$HOST_SHORT
       ## Load newer git
       module try-load git
       ## Load newer subversion
       module try-load subversion
     fi
     ## Add manually built diffutils to paths
-    if [ -d $HOME/sw/$HOST_SHORT/diffutils ]; then
+    if [[ -d $HOME/sw/$HOST_SHORT/diffutils ]]; then
         export PATH=$HOME/sw/$HOST_SHORT/diffutils/bin:$PATH
         export MANPATH=$HOME/sw/$HOST_SHORT/diffutils/share/man:$MANPATH
         export INFOPATH=$HOME/sw/$HOST_SHORT/diffutils/share/info:$MANPATH
     fi
     ## Add manually built VIM to paths
-    if [ -d $HOME/sw/$HOST_SHORT/vim ]; then
+    if [[ -d $HOME/sw/$HOST_SHORT/vim ]]; then
         export PATH=$HOME/sw/$HOST_SHORT/vim/bin:$PATH
         export MANPATH=$HOME/sw/$HOST_SHORT/vim/share/man:$MANPATH
     fi
     ## Add manually built makedepf90 to paths
-    if [ -d $HOME/sw/$HOST_SHORT/makedepf90 ]; then
+    if [[ -d $HOME/sw/$HOST_SHORT/makedepf90 ]]; then
         export PATH=$HOME/sw/$HOST_SHORT/makedepf90/bin:$PATH
         export MANPATH=$HOME/sw/$HOST_SHORT/makedepf90/share/man:$MANPATH
     fi
     ## Add manually built pbzip2 to paths
-    if [ -d $HOME/sw/$HOST_SHORT/pbzip2 ]; then
+    if [[ -d $HOME/sw/$HOST_SHORT/pbzip2 ]]; then
         export PATH=$HOME/sw/$HOST_SHORT/pbzip2/bin:$PATH
         export MANPATH=$HOME/sw/$HOST_SHORT/pbzip2/share/man:$MANPATH
     fi
-elif [ $FACILITY == "NERSC" ]; then
+elif [[ $FACILITY = "NERSC" ]]; then
     export WORKDIR=$CSCRATCH
     export PROJHOME=/project/projectdirs/$PROJID
     export PROJWORKDIR=$WORKDIR
     export HPSS_PROJDIR=/home/projects/$PROJID
     ## KNL by default
-    if [ $NERSC_HOST == "cori" ]; then
+    if [[ $NERSC_HOST = "cori" ]]; then
         module swap PrgEnv-$LC_PE_ENV PrgEnv-intel
         module swap craype-$CRAY_CPU_TARGET craype-mic-knl
-    elif [ $NERSC_HOST == "edison" ]; then
+    elif [[ $NERSC_HOST = "edison" ]]; then
         module swap PrgEnv-$LC_PE_ENV PrgEnv-intel
     fi
     ## Load newer subversion
     module load subversion
     ## Unlaod darhsan
     module unload darshan
-elif [ $FACILITY == "local" ]; then
+elif [[ $FACILITY = "local" ]]; then
     export WORKDIR=$HOME
     export PROJHOME=$HOME
     export PROJWORKDIR=$WORKDIR
     export HPSS_PROJDIR=$PROJHOME
 
     ## Mac OS X
-    if [ "$(uname)" == "Darwin" ]; then
+    if [[ "$(uname)" = "Darwin" ]]; then
         export LD_LIBRARY_PATH=/opt/local/lib:$LD_LIBRARY_PATH
         export MANPATH=/opt/local/share/man:$MANPATH
         export GS_FONTPATH=$GS_FONTPATH:~/Library/Fonts
@@ -320,7 +320,7 @@ export BOXLIB_DIR=$BOXLIB_ROOT/BoxLib
 export BOXLIB_HOME=$BOXLIB_ROOT/BoxLib
 #export BOXLIB_USE_MPI_WRAPPERS=1
 
-[ -d $PROJHOME/$USER ] && export FLASH_ROOT=$PROJHOME/$USER || export FLASH_ROOT=$HOME
+[[ -d $PROJHOME/$USER ]] && export FLASH_ROOT=$PROJHOME/$USER || export FLASH_ROOT=$HOME
 export FLASHOR=$FLASH_ROOT/FLASHOR
 export FLASH5=$FLASH_ROOT/FLASH5
 export FLASH_DIR=$FLASHOR
@@ -328,12 +328,12 @@ export XNET_FLASH=$FLASH_DIR/source/physics/sourceTerms/Burn/BurnMain/nuclearBur
 export HELMHOLTZ_FLASH=$FLASH_DIR/source/physics/Eos/EosMain/Helmholtz
 export SIM_FLASH=$FLASH_DIR/source/Simulation/SimulationMain
 
-if [ -d $HOME/magma ]; then
+if [[ -d $HOME/magma ]]; then
     export MAGMA_DIR=$HOME/magma
     export MAGMA_ROOT=$MAGMA_DIR
 fi
 
-if [ -d $HOME/hypre ]; then
+if [[ -d $HOME/hypre ]]; then
     export HYPRE_DIR=$HOME/hypre
     export HYPRE_ROOT=$HYPRE_DIR
 fi
@@ -346,7 +346,7 @@ export PGPLOT_DIR=$HOME/mesasdk/pgplot
 export MESA_CACHES_DIR=$WORKDIR/mesa_execute/data
 
 ## Do any extra local initialization
-[ -f $HOME/.bashrc.local ] && . $HOME/.bashrc.local
+[[ -f $HOME/.bashrc.local ]] && . $HOME/.bashrc.local
 
 ## Set appropriate colors
 use_color=false
@@ -357,7 +357,7 @@ match_lhs=""
 [[ -z ${match_lhs} ]] \
  && type -P dircolors >/dev/null \
  && match_lhs=$(dircolors --print-database)
-[[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] && use_color=true
+[[ $'\n'${match_lhs} = *$'\n'"TERM "${safe_term}* ]] && use_color=true
 if ${use_color} ; then
  if type -P dircolors >/dev/null ; then
      if [[ -f ~/.dir_colors ]] ; then
