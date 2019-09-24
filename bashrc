@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 ## If not running interactively, don't do anything
 [[ $- == *i* ]] || return
 
@@ -56,29 +55,22 @@ export USER=$(whoami)
 export FQDN=$(hostname -f)
 
 ## Trim extras off HOSTNAME (e.g. -ext2, edison05, cori10)
-if [[ $FQDN = *"summit.olcf.ornl.gov" ]]; then
-    export HOST_SHORT="summit"
-elif [[ $FQDN = *"peak.olcf.ornl.gov" ]]; then
-    export HOST_SHORT="peak"
-elif [[ $FQDN = *"ascent.olcf.ornl.gov" ]]; then
-    export HOST_SHORT="ascent"
-else
-    export HOST_SHORT=$(echo ${HOSTNAME%%.*} | sed 's/\(-[a-zA-Z0-9]*\)\?[0-9]*$//')
-fi
+export HOST_SHORT="$(echo ${FQDN} | \
+  sed -e 's/\.\(olcf\|ccs\)\..*//' \
+      -e 's/[-]\?\(login\|ext\|batch\)[^\.]*[\.]\?//' \
+      -e 's/[-0-9]*$//')"
 
 ## Get computing facility name (e.g. NERSC, OLCF, ALCF, NCSA)
-if [[ $FQDN = *"ornl.gov" ]]; then
+if [ $FQDN = "*ornl.gov" ] || \
+   [ $HOST_SHORT = "summitdev" ] || \
+   [  $HOST_SHORT = "lyra" ]; then
     export FACILITY="OLCF"
-elif [[ $FQDN = *"nersc.gov" ]]; then
+elif [ $FQDN = "*nersc.gov" ]; then
     export FACILITY="NERSC"
-elif [[ $FQDN = *"anl.gov" ]]; then
+elif [ $FQDN = "*anl.gov" ]; then
     export FACILITY="ALCF"
-elif [[ $FQDN = *"illinois.edu" ]]; then
-    export FACILITY="NCSA"
-elif [[ $FQDN = *"tennessee.edu" ]]; then
+elif [ $FQDN = "*tennessee.edu" ]; then
     export FACILITY="NICS"
-elif [[ $FQDN = "summitdev"* ]]; then
-    export FACILITY="OLCF"
 else
     export FACILITY="local"
 fi
@@ -112,9 +104,9 @@ fi
 
 ## Load custom aliases
 if [ -f $HOME/.aliases.$HOST_SHORT ]; then
-    source $HOME/.aliases.$HOST_SHORT
+    . $HOME/.aliases.$HOST_SHORT
 elif [ -f $HOME/.aliases ]; then
-    source $HOME/.aliases
+    . $HOME/.aliases
 fi
 
 ## Check the window size after each command and, if necessary, update the values of LINES and COLUMNS.
@@ -127,9 +119,7 @@ shopt -s extglob
 bashver=$(echo ${BASH_VERSINFO[@]:0:3} | tr ' ' '.')
 vertest=$(vercomp $bashver 4.2.29)
 vertestresult=$?
-if [ $vertestresult -lt 2 ]; then
-    shopt -s direxpand
-fi
+[ $vertestresult -lt 2 ] && shopt -s direxpand
 unset bashver vertest vertestresult
 
 ## Ignore duplicate history entries
@@ -145,12 +135,10 @@ export EDITOR=vim
 ## Useful flags for 'less' (including color support)
 export LESS="--ignore-case --status-column --RAW-CONTROL-CHARS"
 # Use colors for less, man, etc.
-[[ -f ~/.LESS_TERMCAP ]] && . ~/.LESS_TERMCAP
+[ -f ~/.LESS_TERMCAP ] && . ~/.LESS_TERMCAP
 
 ## Create lower-case PE_ENV (for use in modules)
-if [ ! -z ${PE_ENV+x} ]; then
-    export LC_PE_ENV=$(echo ${PE_ENV} | tr A-Z a-z)
-fi
+[ ! -z ${PE_ENV+x} ] && export LC_PE_ENV=$(echo ${PE_ENV} | tr A-Z a-z)
 
 ## Number of processors on this node
 if [ -f /proc/cpuinfo ]; then
@@ -159,53 +147,60 @@ if [ -f /proc/cpuinfo ]; then
 fi
 
 ## Set facility/machine specific environment variables
-if [ $HOST_SHORT == "ascent" ]; then
-    export MEMBERWORK=/gpfs/wolf/scratch/$USER
-    export PROJWORK=/gpfs/wolf/proj-shared
-    export WORLDWORK=/gpfs/wolf/world-shared
-    export WORKDIR=$MEMBERWORK/$PROJID
-    export PROJHOME=/ccs/proj/$PROJID
-    export PROJWORKDIR=$PROJWORK/$PROJID/$USER
-    ## Load newer git (titan already does this in system-wide init)
-    module load git
-    ## Load newer subversion
-    module load subversion
-    ## Add manually built diffutils to paths
-    export PATH=$HOME/sw/diffutils_$HOST_SHORT/bin:$PATH
-    export MANPATH=$HOME/sw/diffutils_$HOST_SHORT/share/man:$MANPATH
-    export INFOPATH=$HOME/sw/diffutils_$HOST_SHORT/share/info:$MANPATH
-elif [ $FACILITY == "OLCF" ]; then
+if [ $FACILITY == "OLCF" ]; then
     ## Scratch directory environment variables for Summit/SummitDev are not yet created by default
-    if [ $HOST_SHORT == "summit" -o $HOST_SHORT == "summitdev" -o $HOST_SHORT == "peak" ]; then
+    if [ -d /gpfs/alpine ]; then
+        ## Summit, SummitDev, Peak, Rhea
         export MEMBERWORK=/gpfs/alpine/scratch/$USER
         export PROJWORK=/gpfs/alpine/proj-shared
         export WORLDWORK=/gpfs/alpine/world-shared
+    elif [ -d /gpfs/wolf ]; then
+        ## Ascent
+        export MEMBERWORK=/gpfs/wolf/scratch/$USER
+        export PROJWORK=/gpfs/wolf/proj-shared
+        export WORLDWORK=/gpfs/wolf/world-shared
+    else
+        ## Lyra, home, hub, dtn, ...
+        export MEMBERWORK=$HOME
+        export PROJWORK=$HOME
+        export WORLDWORK=$HOME
     fi
-    export WORKDIR=$MEMBERWORK/$PROJID
-    export PROJHOME=/ccs/proj/$PROJID
-    export PROJWORKDIR=$PROJWORK/$PROJID/$USER
+    [ -d $MEMBERWORK/$PROJID ] && export WORKDIR=$MEMBERWORK/$PROJID || export WORKDIR=$HOME
+    [ -d /ccs/proj/$PROJID ] && export PROJHOME=/ccs/proj/$PROJID || export PROJHOME=$PROJWORK
+    [ -d $PROJWORK/$PROJID/$USER ] && export PROJWORKDIR=$PROJWORK/$PROJID/$USER || export PROJWORKDIR=$WORKDIR
     export HPSS_PROJDIR=/proj/$PROJID
-    ## Add custom modules to path
-    module use /ccs/proj/ast137/modulefiles/$HOST_SHORT
-    if [ $HOST_SHORT == "titan" ]; then
-        ## Load newer version of VIM that supports undofile
-       module load vim
-       ## Load newer subversion
-       module load subversion
-    fi
-    if [ $HOST_SHORT == "summit" -o $HOST_SHORT == "summitdev" -o $HOST_SHORT == "peak" ]; then
-       ## Load newer git (titan already does this in system-wide init)
-       module load git
-       ## Load newer subversion
-       module load subversion
+    ## If system has Lmod ...
+    if [ ! -z ${LMOD_CMD+x} ]; then
+      ## ... Add custom modules to path
+      [ -d $WORLDWORK/$USER/modulefiles/$HOST_SHORT ] && module use $WORLDWORK/$USER/modulefiles/$HOST_SHORT
+      [ -d $PROJHOME/modulefiles/$HOST_SHORT ] && module use $PROJHOME/modulefiles/$HOST_SHORT
+      [ -d $HOME/modulefiles/$HOST_SHORT ] && module use $HOME/modulefiles/$HOST_SHORT
+      ## Load newer git
+      module try-load git
+      ## Load newer subversion
+      module try-load subversion
     fi
     ## Add manually built diffutils to paths
-    export PATH=$HOME/sw/diffutils_$HOST_SHORT/bin:$PATH
-    export MANPATH=$HOME/sw/diffutils_$HOST_SHORT/share/man:$MANPATH
-    export INFOPATH=$HOME/sw/diffutils_$HOST_SHORT/share/info:$MANPATH
-
-    export PATH=$HOME/sw/vim8.1/bin:$PATH
-    export MANPATH=$HOME/sw/vim8.1/share/man:$MANPATH
+    if [ -d $HOME/sw/$HOST_SHORT/diffutils ]; then
+        export PATH=$HOME/sw/$HOST_SHORT/diffutils/bin:$PATH
+        export MANPATH=$HOME/sw/$HOST_SHORT/diffutils/share/man:$MANPATH
+        export INFOPATH=$HOME/sw/$HOST_SHORT/diffutils/share/info:$MANPATH
+    fi
+    ## Add manually built VIM to paths
+    if [ -d $HOME/sw/$HOST_SHORT/vim ]; then
+        export PATH=$HOME/sw/$HOST_SHORT/vim/bin:$PATH
+        export MANPATH=$HOME/sw/$HOST_SHORT/vim/share/man:$MANPATH
+    fi
+    ## Add manually built makedepf90 to paths
+    if [ -d $HOME/sw/$HOST_SHORT/makedepf90 ]; then
+        export PATH=$HOME/sw/$HOST_SHORT/makedepf90/bin:$PATH
+        export MANPATH=$HOME/sw/$HOST_SHORT/makedepf90/share/man:$MANPATH
+    fi
+    ## Add manually built pbzip2 to paths
+    if [ -d $HOME/sw/$HOST_SHORT/pbzip2 ]; then
+        export PATH=$HOME/sw/$HOST_SHORT/pbzip2/bin:$PATH
+        export MANPATH=$HOME/sw/$HOST_SHORT/pbzip2/share/man:$MANPATH
+    fi
 elif [ $FACILITY == "NERSC" ]; then
     export WORKDIR=$CSCRATCH
     export PROJHOME=/project/projectdirs/$PROJID
@@ -215,20 +210,13 @@ elif [ $FACILITY == "NERSC" ]; then
     if [ $NERSC_HOST == "cori" ]; then
         module swap PrgEnv-$LC_PE_ENV PrgEnv-intel
         module swap craype-$CRAY_CPU_TARGET craype-mic-knl
-        ## Load newer subversion
-        module load subversion
     elif [ $NERSC_HOST == "edison" ]; then
         module swap PrgEnv-$LC_PE_ENV PrgEnv-intel
-        ## Load newer subversion
-        module load subversion
     fi
+    ## Load newer subversion
+    module load subversion
     ## Unlaod darhsan
     module unload darshan
-elif [ $FACILITY == "NCSA" ]; then
-    export WORKDIR=$SCRATCH
-    export PROJHOME=/projects/sciteam/$PROJID
-    export PROJWORKDIR=$WORKDIR
-    export HPSS_PROJDIR=/projects/sciteam/$PROJID
 elif [ $FACILITY == "local" ]; then
     export WORKDIR=$HOME
     export PROJHOME=$HOME
@@ -298,11 +286,8 @@ export LD_LIBRARY_PATH=$HOME/lib:$LD_LIBRARY_PATH
 export CHIMERA=$HOME/chimera/trunk/Chimera
 export DCHIMERA=$HOME/chimera/tags/D-production
 export FCHIMERA=$HOME/chimera/tags/F-production
-export RADHYD=$HOME/chimera/trunk/RadHyd
 export TRACER_READER=$HOME/chimera/trunk/Tools/tracer_reader
 export INITIAL_MODELS=$HOME/chimera/trunk/Initial_Models
-export SERIES_D=$HOME/chimera/trunk/Initial_Models/Series-D
-export TRACER_EXE=$WORDIR/tracer_reader
 export MODEL_GENERATOR=$INITIAL_MODELS/Model_Generator
 
 export WEAKLIB_DIR=$HOME/weaklib
@@ -326,27 +311,32 @@ export MAESTRO_HOME=$MAESTRO_DIR
 export STARKILLER_ROOT=$HOME/starkiller-astro
 export MICROPHYSICS_DIR=$STARKILLER_ROOT/Microphysics
 export MICROPHYSICS_HOME=$MICROPHYSICS_DIR
+export XNET_DIR=$STARKILLER_ROOT/XNet
+export XNET_HOME=$XNET_DIR
+export XNET=$XNET_DIR
 
 export BOXLIB_ROOT=$HOME/BoxLib-Codes
 export BOXLIB_DIR=$BOXLIB_ROOT/BoxLib
 export BOXLIB_HOME=$BOXLIB_ROOT/BoxLib
 #export BOXLIB_USE_MPI_WRAPPERS=1
 
-export XNET=$STARKILLER_ROOT/XNet
-
-export FLASHOR=$PROJHOME/$USER/FLASHOR
-export FLASH5=$PROJHOME/$USER/FLASH5
-
+[ -d $PROJHOME/$USER ] && export FLASH_ROOT=$PROJHOME/$USER || export FLASH_ROOT=$HOME
+export FLASHOR=$FLASH_ROOT/FLASHOR
+export FLASH5=$FLASH_ROOT/FLASH5
 export FLASH_DIR=$FLASHOR
 export XNET_FLASH=$FLASH_DIR/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
 export HELMHOLTZ_FLASH=$FLASH_DIR/source/physics/Eos/EosMain/Helmholtz
 export SIM_FLASH=$FLASH_DIR/source/Simulation/SimulationMain
 
-export MAGMA_DIR=$HOME/magma
-export MAGMA_ROOT=$MAGMA_DIR
+if [ -d $HOME/magma ]; then
+    export MAGMA_DIR=$HOME/magma
+    export MAGMA_ROOT=$MAGMA_DIR
+fi
 
-export HYPRE_DIR=$HOME/hypre
-export HYPRE_ROOT=$HYPRE_DIR
+if [ -d $HOME/hypre ]; then
+    export HYPRE_DIR=$HOME/hypre
+    export HYPRE_ROOT=$HYPRE_DIR
+fi
 
 export HELMHOLTZ_PATH=$HOME/helmholtz
 
@@ -355,12 +345,8 @@ export MESASDK_ROOT=$HOME/mesasdk
 export PGPLOT_DIR=$HOME/mesasdk/pgplot
 export MESA_CACHES_DIR=$WORKDIR/mesa_execute/data
 
-export HACKATHON=$MEMBERWORK/gen109/gpuhackathon
-
 ## Do any extra local initialization
-if [ -f $HOME/.bashrc.local ]; then
-    source $HOME/.bashrc.local
-fi
+[ -f $HOME/.bashrc.local ] && . $HOME/.bashrc.local
 
 ## Set appropriate colors
 use_color=false
