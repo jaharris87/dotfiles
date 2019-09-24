@@ -113,7 +113,7 @@ set hlsearch
 nnoremap <silent> ./ :nohlsearch<CR>
 
 " Default spaces per indent
-set shiftwidth=4
+set shiftwidth=2
 
 " Add some extra lines to pad while scrolling
 set scrolloff=5
@@ -147,9 +147,10 @@ let fortran_do_enddo=1
 "au! BufRead,BufNewFile *.f90 let b:fortran_do_enddo=1
 
 " Filetype-specific indents
-"au! BufRead,BufNewFile *.f90 set shiftwidth=2
+au! BufRead,BufNewFile *.f90 set shiftwidth=2
 "au! BufRead,BufNewFile *.f   set shiftwidth=3
 "au! BufRead,BufNewFile *.xml set shiftwidth=2
+au! BufRead,BufNewFile *.py  set shiftwidth=4
 
 " Change some syntax highlightning
 au! BufRead,BufNewFile *.d   hi clear Label Error
@@ -168,3 +169,5 @@ au! BufRead,BufNewFile [mM]akefile.h* set filetype=make
 
 " Use backtick for escape
 ":imap ` <Esc>
+
+"let g:DiffUnit='Char'

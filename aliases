@@ -35,7 +35,7 @@ if [ $vertestresult -lt 2 ]; then
 fi
 
 ## Queue management (LSF for Summit, SLURM for NERSC machines, MOAB for other OLCF machines)
-if [ $HOST_SHORT == "summit" -o $HOST_SHORT == "summitdev" -o $HOST_SHORT == "ascent" ]; then
+if [ $HOST_SHORT == "summit" -o $HOST_SHORT == "summitdev" -o $HOST_SHORT == "ascent" -o $HOST_SHORT == "peak" ]; then
 
     ## Custom format
     export LSB_BJOBS_FORMAT="jobid:7 proj_name:16 user:12 queue:8 stat:7 nexec_host:13 submit_time:13 start_time:13 time_left:-10 run_time:-16 pend_reason"

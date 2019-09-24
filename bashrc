@@ -58,6 +58,8 @@ export FQDN=$(hostname -f)
 ## Trim extras off HOSTNAME (e.g. -ext2, edison05, cori10)
 if [[ $FQDN = *"summit.olcf.ornl.gov" ]]; then
     export HOST_SHORT="summit"
+elif [[ $FQDN = *"peak.olcf.ornl.gov" ]]; then
+    export HOST_SHORT="peak"
 elif [[ $FQDN = *"ascent.olcf.ornl.gov" ]]; then
     export HOST_SHORT="ascent"
 else
@@ -85,8 +87,10 @@ fi
 if [ $FACILITY == "OLCF" ]; then
     if [ $HOST_SHORT == "ascent" ]; then
         export PROJID="gen109"
+    elif [ $HOST_SHORT == "summit" ]; then
+        export PROJID="ast136"
     else
-        export PROJID="csc198"
+        export PROJID="stf006"
     fi
     export PROJ_USERS=$(getent group $PROJID | sed 's/^.*://')
 elif [ $FACILITY == "NERSC" ]; then
@@ -172,26 +176,24 @@ if [ $HOST_SHORT == "ascent" ]; then
     export INFOPATH=$HOME/sw/diffutils_$HOST_SHORT/share/info:$MANPATH
 elif [ $FACILITY == "OLCF" ]; then
     ## Scratch directory environment variables for Summit/SummitDev are not yet created by default
-    if [ $HOST_SHORT == "summitdev" ]; then
-        export MEMBERWORK=/lustre/atlas/scratch/$USER
-        export PROJWORK=/lustre/atlas/proj-shared
-        export WORLDWORK=/lustre/atlas/world-shared
-    elif [ $HOST_SHORT == "summit" ]; then
-        export MEMBERWORK=/gpfs/alpinetds/scratch/$USER
-        export PROJWORK=/gpfs/alpinetds/proj-shared
-        export WORLDWORK=/gpfs/alpinetds/world-shared
+    if [ $HOST_SHORT == "summit" -o $HOST_SHORT == "summitdev" -o $HOST_SHORT == "peak" ]; then
+        export MEMBERWORK=/gpfs/alpine/scratch/$USER
+        export PROJWORK=/gpfs/alpine/proj-shared
+        export WORLDWORK=/gpfs/alpine/world-shared
     fi
     export WORKDIR=$MEMBERWORK/$PROJID
     export PROJHOME=/ccs/proj/$PROJID
     export PROJWORKDIR=$PROJWORK/$PROJID/$USER
     export HPSS_PROJDIR=/proj/$PROJID
+    ## Add custom modules to path
+    module use /ccs/proj/ast137/modulefiles/$HOST_SHORT
     if [ $HOST_SHORT == "titan" ]; then
         ## Load newer version of VIM that supports undofile
        module load vim
        ## Load newer subversion
        module load subversion
     fi
-    if [ $HOST_SHORT == "summit" -o $HOST_SHORT == "summitdev" ]; then
+    if [ $HOST_SHORT == "summit" -o $HOST_SHORT == "summitdev" -o $HOST_SHORT == "peak" ]; then
        ## Load newer git (titan already does this in system-wide init)
        module load git
        ## Load newer subversion
@@ -201,6 +203,9 @@ elif [ $FACILITY == "OLCF" ]; then
     export PATH=$HOME/sw/diffutils_$HOST_SHORT/bin:$PATH
     export MANPATH=$HOME/sw/diffutils_$HOST_SHORT/share/man:$MANPATH
     export INFOPATH=$HOME/sw/diffutils_$HOST_SHORT/share/info:$MANPATH
+
+    export PATH=$HOME/sw/vim8.1/bin:$PATH
+    export MANPATH=$HOME/sw/vim8.1/share/man:$MANPATH
 elif [ $FACILITY == "NERSC" ]; then
     export WORKDIR=$CSCRATCH
     export PROJHOME=/project/projectdirs/$PROJID
@@ -292,16 +297,21 @@ export LD_LIBRARY_PATH=$HOME/lib:$LD_LIBRARY_PATH
 ## Set global environment variables (same on all machines)
 export CHIMERA=$HOME/chimera/trunk/Chimera
 export DCHIMERA=$HOME/chimera/tags/D-production
+export FCHIMERA=$HOME/chimera/tags/F-production
 export RADHYD=$HOME/chimera/trunk/RadHyd
 export TRACER_READER=$HOME/chimera/trunk/Tools/tracer_reader
 export INITIAL_MODELS=$HOME/chimera/trunk/Initial_Models
 export SERIES_D=$HOME/chimera/trunk/Initial_Models/Series-D
-export CHIMERA_EXE=$WORKDIR/chimera_execute
 export TRACER_EXE=$WORDIR/tracer_reader
 export MODEL_GENERATOR=$INITIAL_MODELS/Model_Generator
 
 export WEAKLIB_DIR=$HOME/weaklib
+export WEAKLIB_HOME=$WEAKLIB_DIR
+export WEAKLIB_MACHINE=${HOST_SHORT}_xl
+
 export THORNADO_DIR=$HOME/thornado
+export THORNADO_HOME=$THORNADO_DIR
+export THORNADO_MACHINE=${HOST_SHORT}_xl
 
 export AMREX_ROOT=$HOME/AMReX-Codes
 export AMREX_DIR=$AMREX_ROOT/amrex
@@ -324,8 +334,13 @@ export BOXLIB_HOME=$BOXLIB_ROOT/BoxLib
 
 export XNET=$STARKILLER_ROOT/XNet
 
-export FLASH_DIR=$PROJWORKDIR/FLASHOR
+export FLASHOR=$PROJHOME/$USER/FLASHOR
+export FLASH5=$PROJHOME/$USER/FLASH5
+
+export FLASH_DIR=$FLASHOR
 export XNET_FLASH=$FLASH_DIR/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
+export HELMHOLTZ_FLASH=$FLASH_DIR/source/physics/Eos/EosMain/Helmholtz
+export SIM_FLASH=$FLASH_DIR/source/Simulation/SimulationMain
 
 export MAGMA_DIR=$HOME/magma
 export MAGMA_ROOT=$MAGMA_DIR
