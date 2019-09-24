@@ -698,9 +698,11 @@ au BufNewFile,BufRead *.frt			setf reva
 
 " Fortran
 if has("fname_case")
-  au BufNewFile,BufRead *.F,*.FOR,*.FPP,*.FTN,*.F77,*.F90,*.F95	 setf fortran
+  au BufNewFile,BufRead *.F,*.FOR,*.FPP,*.FTN,*.F77,*.F90,*.F95  setf fortran
+  au BufNewFile,BufRead *.F.*,*.FOR.*,*.FPP.*,*.FTN.*,*.F77.*,*.F90.*,*.F95.*    setf fortran
 endif
 au BufNewFile,BufRead   *.f,*.for,*.fortran,*.fpp,*.ftn,*.f77,*.f90,*.f95,probin*  setf fortran
+au BufNewFile,BufRead   *.f.*,*.for.*,*.fortran.*,*.fpp.*,*.ftn.*,*.f77.*,*.f90.*,*.f95.*  setf fortran
 au BufNewFile,BufRead   *.nml,*.namelist setf fortran
 au BufNewFile,BufRead   *.fh setf fortran
 
