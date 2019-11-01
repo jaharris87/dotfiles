@@ -4,17 +4,27 @@
 [[ $- = *i* ]] || return
 
 ## Use custom terminal prompt
+green=$(tput setaf 2)
 yellow=$(tput setaf 3)
+blue=$(tput setaf 4)
 white=$(tput setaf 7)
 black=$(tput setaf 0)
 bold=$(tput bold)
 reset=$(tput sgr0)
 
-function parse_git_branch {
-   git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
-}
-#export PS1="\[$bold$yellow\]\u@\h\[$reset\]: \[$bold$white\]\w\[$reset\]\$(parse_git_branch)> "
-export PS1="\[$bold$yellow\]\u@\h\[$reset\]: \[$bold$white\]\w\[$reset\]> "
+if [[ -f $HOME/.git-prompt.sh ]]; then
+    . $HOME/.git-prompt.sh
+    export GIT_PS1_SHOWDIRTYSTATE=1
+    export PROMPT_COMMAND='__git_ps1 "\[$bold$yellow\]\u@\h\[$reset\]:\[$bold$green\]" "\[$reset\] \[$bold$white\]\w\[$reset\]> "'
+    #export PS1="\[$bold$yellow\]\u@\h\[$reset\]:\[$bold$blue\]$(__git_ps1 " (%s)")\[$reset\] \[$bold$white\]\w\[$reset\]> "
+else
+    function parse_git_branch {
+       git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+    }
+    export PS1="\[$bold$yellow\]\u@\h\[$reset\]: \[$bold$white\]\w\[$reset\]\$(parse_git_branch)> "
+fi
+
+#export PS1="\[$bold$yellow\]\u@\h\[$reset\]: \[$bold$white\]\w\[$reset\]> "
 
 ## Export commands to history as they are executed (allows shared history between screen sessions)
 #export PROMPT_COMMAND="history -a; history -c; history -r; ${PROMPT_COMMAND}"
@@ -133,7 +143,7 @@ export HISTSIZE=1000000
 export EDITOR=vim
 
 ## Useful flags for 'less' (including color support)
-export LESS="--ignore-case --status-column --RAW-CONTROL-CHARS"
+export LESS="--ignore-case --status-column --RAW-CONTROL-CHARS -F $LESS"
 # Use colors for less, man, etc.
 [[ -f ~/.LESS_TERMCAP ]] && . ~/.LESS_TERMCAP
 
@@ -329,10 +339,14 @@ export BOXLIB_HOME=$BOXLIB_ROOT/BoxLib
 [[ -d $PROJHOME/$USER ]] && export FLASH_ROOT=$PROJHOME/$USER || export FLASH_ROOT=$HOME
 export FLASHOR=$FLASH_ROOT/FLASHOR
 export FLASH5=$FLASH_ROOT/FLASH5
-export FLASH_DIR=$FLASHOR
+export FLASH_DIR=$FLASH5
 export XNET_FLASH=$FLASH_DIR/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
 export HELMHOLTZ_FLASH=$FLASH_DIR/source/physics/Eos/EosMain/Helmholtz
+export WEAKLIB_FLASH=$FLASH_DIR/source/physics/Eos/EosMain/WeakLib
+export RADTRANS_FLASH=$FLASH_DIR/source/physics/RadTrans/RadTransMain
 export SIM_FLASH=$FLASH_DIR/source/Simulation/SimulationMain
+
+export FLASH_RUN=$PROJWORKDIR/FLASH5_run
 
 if [[ -d $HOME/magma ]]; then
     export MAGMA_DIR=$HOME/magma
