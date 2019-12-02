@@ -1049,6 +1049,9 @@ au BufNewFile,BufRead *.mv,*.mpl,*.mws		setf maple
 " Map (UMN mapserver config file)
 au BufNewFile,BufRead *.map			setf map
 
+" Markdown
+au BufNewFile,BufRead [Rr][Ee][Aa][Dd][Mm][Ee]*,*.md,*.MD setf markdown
+
 " Mason
 au BufNewFile,BufRead *.mason,*.mhtml		setf mason
 
@@ -1131,7 +1134,7 @@ au BufNewFile,BufRead *.mod
 	\ endif
 
 " Modula 2
-au BufNewFile,BufRead *.m2,*.DEF,*.MOD,*.md,*.mi setf modula2
+au BufNewFile,BufRead *.m2,*.DEF,*.MOD,*.mi setf modula2
 
 " Modula 3 (.m3, .i3, .mg, .ig)
 au BufNewFile,BufRead *.[mi][3g]		setf modula3

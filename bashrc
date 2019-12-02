@@ -338,15 +338,22 @@ export BOXLIB_HOME=$BOXLIB_ROOT/BoxLib
 
 [[ -d $PROJHOME/$USER ]] && export FLASH_ROOT=$PROJHOME/$USER || export FLASH_ROOT=$HOME
 export FLASHOR=$FLASH_ROOT/FLASHOR
+export XNET_FLASHOR=$FLASHOR/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
+export HELMHOLTZ_FLASHOR=$FLASHOR/source/physics/Eos/EosMain/Helmholtz
+export FLASHOR_RUN=$PROJWORKDIR/FLASHOR_run
+
 export FLASH5=$FLASH_ROOT/FLASH5
+export XNET_FLASH5=$FLASH5/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
+export HELMHOLTZ_FLASH5=$FLASH5/source/physics/Eos/EosMain/Helmholtz
+export FLASH5_RUN=$PROJWORKDIR/FLASH5_run
+
 export FLASH_DIR=$FLASH5
 export XNET_FLASH=$FLASH_DIR/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
 export HELMHOLTZ_FLASH=$FLASH_DIR/source/physics/Eos/EosMain/Helmholtz
 export WEAKLIB_FLASH=$FLASH_DIR/source/physics/Eos/EosMain/WeakLib
 export RADTRANS_FLASH=$FLASH_DIR/source/physics/RadTrans/RadTransMain
 export SIM_FLASH=$FLASH_DIR/source/Simulation/SimulationMain
-
-export FLASH_RUN=$PROJWORKDIR/FLASH5_run
+export FLASH_RUN=$FLASH5_RUN
 
 if [[ -d $HOME/magma ]]; then
     export MAGMA_DIR=$HOME/magma
