@@ -289,6 +289,10 @@ elif [[ $FACILITY = "local" ]]; then
         export PARDISO_DIR=/usr/local/pardiso
         export PARDISO_LIC_PATH=$PARDISO_DIR
         export PARDISOLICMESSAGE=1
+     elif [[ "$(uname)" = "Linux" ]]; then
+
+        ## Add VisIt bin directory to PATH
+        export PATH=/usr/local/visit/bin:$PATH
      fi
 fi
 
