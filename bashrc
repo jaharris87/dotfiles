@@ -66,9 +66,10 @@ export FQDN=$(hostname -f)
 
 ## Trim extras off HOSTNAME (e.g. -ext2, edison05, cori10)
 export HOST_SHORT="$(echo ${FQDN} | \
-  sed -e 's/\.\(olcf\|ccs\)\..*//' \
-      -e 's/[-]\?\(login\|ext\|batch\)[^\.]*[\.]\?//' \
-      -e 's/[-0-9]*$//')"
+    sed -e 's/\.\(olcf\|ccs\)\..*//' \
+        -e 's/[-]\?\(login\|ext\|batch\|[a-z][0-9]\+n[0-9]\+\)[^\.]*[\.]\?//' \
+        -e 's/[-0-9]*\([\.][^\.]\+\)\?$//')"
+
 
 ## Get computing facility name (e.g. NERSC, OLCF, ALCF, NCSA)
 if [[ $FQDN = *"ornl.gov" || \
@@ -89,7 +90,7 @@ fi
 if [[ $FACILITY = "OLCF" ]]; then
     if [[ $HOST_SHORT = "ascent" ]]; then
         export PROJID="gen109"
-    elif [[ $HOST_SHORT = "summit" ]]; then
+    elif [[ $HOST_SHORT = "summit" || $HOST_SHORT = "spock" ]]; then
         export PROJID="ast136"
     else
         export PROJID="stf006"
@@ -217,6 +218,9 @@ if [[ $FACILITY = "OLCF" ]]; then
         export MANPATH=$HOME/sw/$HOST_SHORT/screen/share/man:$MANPATH
         export INFOPATH=$HOME/sw/$HOST_SHORT/screen/share/info:$MANPATH
     fi
+    ## Default machine for weaklib/thornado
+    export WEAKLIB_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
+    export THORNADO_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
 elif [[ $FACILITY = "NERSC" ]]; then
     export WORKDIR=$CSCRATCH
     export PROJHOME=/project/projectdirs/$PROJID
@@ -289,6 +293,10 @@ elif [[ $FACILITY = "local" ]]; then
         export PARDISO_DIR=/usr/local/pardiso
         export PARDISO_LIC_PATH=$PARDISO_DIR
         export PARDISOLICMESSAGE=1
+
+        ## Default machine for weaklib/thornado
+        export WEAKLIB_MACHINE=mac_gnu
+        export THORNADO_MACHINE=mac_gnu
      fi
 fi
 
@@ -308,11 +316,9 @@ export MODEL_GENERATOR=$INITIAL_MODELS/Model_Generator
 
 export WEAKLIB_DIR=$HOME/weaklib
 export WEAKLIB_HOME=$WEAKLIB_DIR
-export WEAKLIB_MACHINE=${HOST_SHORT}_xl
 
 export THORNADO_DIR=$HOME/thornado
 export THORNADO_HOME=$THORNADO_DIR
-export THORNADO_MACHINE=${HOST_SHORT}_xl
 
 export AMREX_ROOT=$HOME/AMReX-Codes
 export AMREX_DIR=$AMREX_ROOT/amrex

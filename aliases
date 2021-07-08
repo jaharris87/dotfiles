@@ -57,6 +57,23 @@ if [ $HOST_SHORT == "summit" -o $HOST_SHORT == "summitdev" -o $HOST_SHORT == "as
     ## Submit directory of job
     alias bjobsls="bjobs -o 'sub_cwd'"
 
+## SLURM aliases for Spock
+elif [ $HOST_SHORT == "spock" ]; then
+
+    ## squeue wrapper (from NERSC)
+    alias sqs="squeue -o \"%16i %2t %9u %12j  %5D %.10l %.10M   %20V %15q %20S %14f %15R\""
+
+    ## Show only jobs for $USER
+    alias squ="sqs -u $USER"
+    ## Show only jobs for other users in group
+    alias sqg="sqs -u $PROJ_USERS"
+
+    ## Launch interactive job
+    alias sbatchi="salloc -A AST136 -t 02:00:00 -p ecp -N 1"
+
+    ## Detailed job info
+    alias sshow="scontrol show jobid -d"
+
 ## SLURM aliases for NERSC machines
 elif [ ! -z ${NERSC_HOST+x} ]; then
 
