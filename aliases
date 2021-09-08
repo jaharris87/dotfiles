@@ -74,6 +74,19 @@ elif [ $HOST_SHORT == "spock" ]; then
     ## Detailed job info
     alias sshow="scontrol show jobid -d"
 
+## SLURM aliases for CRAY CoE machines
+elif [ $HOST_SHORT == "poplar" -o $HOST_SHORT == "tulip" -o $HOST_SHORT == "birch" ]; then
+
+    ## Show only jobs for $USER
+    alias sqsu="squeue -u $USER"
+
+    ## Launch interactive job (V100 nodes)
+    alias sbatchi="salloc -N 1 -p v100 -t 02:00:00"
+    #alias sbatchi="salloc -N 1 -p amdMI60 -t 02:00:00"
+
+    ## Expand max column width for sqs
+    #alias sqs="sqs -m 30"
+
 ## SLURM aliases for NERSC machines
 elif [ ! -z ${NERSC_HOST+x} ]; then
 

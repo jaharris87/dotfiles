@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
 ## If not running interactively, don't do anything
 [[ $- = *i* ]] || return
 
@@ -68,14 +73,15 @@ export FQDN=$(hostname -f)
 export HOST_SHORT="$(echo ${FQDN} | \
     sed -e 's/\.\(olcf\|ccs\)\..*//' \
         -e 's/[-]\?\(login\|ext\|batch\|[a-z][0-9]\+n[0-9]\+\)[^\.]*[\.]\?//' \
-        -e 's/[-0-9]*\([\.][^\.]\+\)\?$//')"
-
+        -e 's/[-0-9]*\([\.][^\.]\+\)\?$//' \
+        -e 's/\..*$//')"
 
 ## Get computing facility name (e.g. NERSC, OLCF, ALCF, NCSA)
 if [[ $FQDN = *"ornl.gov" || \
-      $HOST_SHORT = "summitdev" || \
       $HOST_SHORT = "lyra" ]]; then
     export FACILITY="OLCF"
+elif [[ $FQDN = *"cm.cluster" ]]; then
+    export FACILITY="CRAY"
 elif [[ $FQDN = *"nersc.gov" ]]; then
     export FACILITY="NERSC"
 elif [[ $FQDN = *"anl.gov" ]]; then
@@ -96,6 +102,9 @@ if [[ $FACILITY = "OLCF" ]]; then
         export PROJID="stf006"
     fi
     export PROJ_USERS=$(getent group $PROJID | sed 's/^.*://')
+elif [[ $FACILITY = "CRAY" ]]; then
+    export PROJID=""
+    export PROJ_USERS=""
 elif [[ $FACILITY = "NERSC" ]]; then
     export PROJID="chimera"
     export PROJ_USERS=$(getent group $PROJID | sed 's/^.*://')
@@ -221,6 +230,12 @@ if [[ $FACILITY = "OLCF" ]]; then
     ## Default machine for weaklib/thornado
     export WEAKLIB_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
     export THORNADO_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
+elif [[ $FACILITY = "CRAY" ]]; then
+    export WORKDIR=$HOME
+    export PROJHOME=$HOME
+    export PROJWORKDIR=$WORKDIR
+    export HPSS_PROJDIR=$PROJHOME
+    #module load PrgEnv-cray
 elif [[ $FACILITY = "NERSC" ]]; then
     export WORKDIR=$CSCRATCH
     export PROJHOME=/project/projectdirs/$PROJID
@@ -355,6 +370,7 @@ export MAESTRO_HOME=$MAESTRO_DIR
 export STARKILLER_ROOT=$HOME/starkiller-astro
 export MICROPHYSICS_DIR=$STARKILLER_ROOT/Microphysics
 export MICROPHYSICS_HOME=$MICROPHYSICS_DIR
+
 export XNET_DIR=$STARKILLER_ROOT/XNet
 export XNET_HOME=$XNET_DIR
 export XNET=$XNET_DIR
