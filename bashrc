@@ -83,7 +83,8 @@ if [[ $FQDN = *"ornl.gov" || \
 elif [[ $FQDN = *"cm.cluster" || \
         $FQDN = *"cray.com" ]]; then
     export FACILITY="CRAY"
-elif [[ $FQDN = *"nersc.gov" ]]; then
+elif [[ ! -z ${NERSC_HOST+x} ]]; then
+    HOST_SHORT=$NERSC_HOST
     export FACILITY="NERSC"
 elif [[ $FQDN = *"anl.gov" ]]; then
     export FACILITY="ALCF"
@@ -107,7 +108,7 @@ elif [[ $FACILITY = "CRAY" ]]; then
     export PROJID=""
     export PROJ_USERS=""
 elif [[ $FACILITY = "NERSC" ]]; then
-    export PROJID="chimera"
+    export PROJID="m1373"
     export PROJ_USERS=$(getent group $PROJID | sed 's/^.*://')
 elif [[ $FACILITY = "ALCF" ]]; then
     export PROJID=""
@@ -238,21 +239,22 @@ elif [[ $FACILITY = "CRAY" ]]; then
     export HPSS_PROJDIR=$PROJHOME
     #module load PrgEnv-cray
 elif [[ $FACILITY = "NERSC" ]]; then
-    export WORKDIR=$CSCRATCH
-    export PROJHOME=/project/projectdirs/$PROJID
-    export PROJWORKDIR=$WORKDIR
+    export WORKDIR=$SCRATCH
+    export PROJHOME=$CFS/$PROJID
+    export PROJWORKDIR=$CFS/$PROJID/$USER
     export HPSS_PROJDIR=/home/projects/$PROJID
-    ## KNL by default
-    if [[ $NERSC_HOST = "cori" ]]; then
-        module swap PrgEnv-$LC_PE_ENV PrgEnv-intel
-        module swap craype-$CRAY_CPU_TARGET craype-mic-knl
-    elif [[ $NERSC_HOST = "edison" ]]; then
-        module swap PrgEnv-$LC_PE_ENV PrgEnv-intel
-    fi
-    ## Load newer subversion
-    module load subversion
-    ## Unlaod darhsan
-    module unload darshan
+
+    shopt -u progcomp
+
+    ### KNL by default
+    #if [[ $NERSC_HOST = "cori" ]]; then
+    #    module swap PrgEnv-$LC_PE_ENV PrgEnv-intel
+    #    module swap craype-$CRAY_CPU_TARGET craype-mic-knl
+    #fi
+    ### Load newer subversion
+    #module load subversion
+    ### Unlaod darhsan
+    #module unload darshan
 elif [[ $FACILITY = "local" ]]; then
     export WORKDIR=$HOME
     export PROJHOME=$HOME

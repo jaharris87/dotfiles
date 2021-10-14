@@ -102,8 +102,8 @@ elif [ ! -z ${NERSC_HOST+x} ]; then
         alias sbatchi="salloc -q debug -t 00:30:00 -N 1 -C knl,quad,cache"
     fi
 
-    ## Expand max column width for sqs
-    alias sqs="sqs -m 30"
+    ### Expand max column width for sqs
+    #alias sqs="sqs -m 30"
 
 else
 
