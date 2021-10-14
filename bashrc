@@ -70,11 +70,15 @@ export USER=$(whoami)
 export FQDN=$(hostname -f)
 
 ## Trim extras off HOSTNAME (e.g. -ext2, edison05, cori10)
-export HOST_SHORT="$(echo ${FQDN} | \
-    sed -e 's/\.\(olcf\|ccs\)\..*//' \
-        -e 's/[-]\?\(login\|ext\|batch\|[a-z][0-9]\+n[0-9]\+\)[^\.]*[\.]\?//' \
-        -e 's/[-0-9]*\([\.][^\.]\+\)\?$//' \
-        -e 's/\..*$//')"
+if [[ ! -z ${LMOD_SYSTEM_NAME+x} ]]; then
+  export HOST_SHORT=${LMOD_SYSTEM_NAME}
+else
+  export HOST_SHORT="$(echo ${FQDN} | \
+      sed -e 's/\.\(olcf\|ccs\)\..*//' \
+          -e 's/[-]\?\(login\|ext\|batch\|[a-z][0-9]\+n[0-9]\+\)[^\.]*[\.]\?//' \
+          -e 's/[-0-9]*\([\.][^\.]\+\)\?$//' \
+          -e 's/\..*$//')"
+fi
 
 ## Get computing facility name (e.g. NERSC, OLCF, ALCF, NCSA)
 if [[ $FQDN = *"ornl.gov" || \
