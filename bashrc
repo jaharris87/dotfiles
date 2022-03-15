@@ -70,11 +70,15 @@ export USER=$(whoami)
 export FQDN=$(hostname -f)
 
 ## Trim extras off HOSTNAME (e.g. -ext2, edison05, cori10)
-export HOST_SHORT="$(echo ${FQDN} | \
-    sed -e 's/\.\(olcf\|ccs\)\..*//' \
-        -e 's/[-]\?\(login\|ext\|batch\|[a-z][0-9]\+n[0-9]\+\)[^\.]*[\.]\?//' \
-        -e 's/[-0-9]*\([\.][^\.]\+\)\?$//' \
-        -e 's/\..*$//')"
+if [[ ! -z ${LMOD_SYSTEM_NAME+x} ]]; then
+  export HOST_SHORT=${LMOD_SYSTEM_NAME}
+else
+  export HOST_SHORT="$(echo ${FQDN} | \
+      sed -e 's/\.\(olcf\|ccs\)\..*//' \
+          -e 's/[-]\?\(login\|ext\|batch\|[a-z][0-9]\+n[0-9]\+\)[^\.]*[\.]\?//' \
+          -e 's/[-0-9]*\([\.][^\.]\+\)\?$//' \
+          -e 's/\..*$//')"
+fi
 
 ## Get computing facility name (e.g. NERSC, OLCF, ALCF, NCSA)
 if [[ $FQDN = *"ornl.gov" || \
@@ -83,7 +87,8 @@ if [[ $FQDN = *"ornl.gov" || \
 elif [[ $FQDN = *"cm.cluster" || \
         $FQDN = *"cray.com" ]]; then
     export FACILITY="CRAY"
-elif [[ $FQDN = *"nersc.gov" ]]; then
+elif [[ ! -z ${NERSC_HOST+x} ]]; then
+    HOST_SHORT=$NERSC_HOST
     export FACILITY="NERSC"
 elif [[ $FQDN = *"anl.gov" ]]; then
     export FACILITY="ALCF"
@@ -107,7 +112,7 @@ elif [[ $FACILITY = "CRAY" ]]; then
     export PROJID=""
     export PROJ_USERS=""
 elif [[ $FACILITY = "NERSC" ]]; then
-    export PROJID="chimera"
+    export PROJID="m1373"
     export PROJ_USERS=$(getent group $PROJID | sed 's/^.*://')
 elif [[ $FACILITY = "ALCF" ]]; then
     export PROJID=""
@@ -244,21 +249,22 @@ elif [[ $FACILITY = "CRAY" ]]; then
     export WEAKLIB_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
     export THORNADO_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
 elif [[ $FACILITY = "NERSC" ]]; then
-    export WORKDIR=$CSCRATCH
-    export PROJHOME=/project/projectdirs/$PROJID
-    export PROJWORKDIR=$WORKDIR
+    export WORKDIR=$SCRATCH
+    export PROJHOME=$CFS/$PROJID
+    export PROJWORKDIR=$CFS/$PROJID/$USER
     export HPSS_PROJDIR=/home/projects/$PROJID
-    ## KNL by default
-    if [[ $NERSC_HOST = "cori" ]]; then
-        module swap PrgEnv-$LC_PE_ENV PrgEnv-intel
-        module swap craype-$CRAY_CPU_TARGET craype-mic-knl
-    elif [[ $NERSC_HOST = "edison" ]]; then
-        module swap PrgEnv-$LC_PE_ENV PrgEnv-intel
-    fi
-    ## Load newer subversion
-    module load subversion
-    ## Unlaod darhsan
-    module unload darshan
+
+    shopt -u progcomp
+
+    ### KNL by default
+    #if [[ $NERSC_HOST = "cori" ]]; then
+    #    module swap PrgEnv-$LC_PE_ENV PrgEnv-intel
+    #    module swap craype-$CRAY_CPU_TARGET craype-mic-knl
+    #fi
+    ### Load newer subversion
+    #module load subversion
+    ### Unlaod darhsan
+    #module unload darshan
 elif [[ $FACILITY = "local" ]]; then
     export WORKDIR=$HOME
     export PROJHOME=$HOME
