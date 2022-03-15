@@ -237,6 +237,12 @@ elif [[ $FACILITY = "CRAY" ]]; then
     export PROJWORKDIR=$WORKDIR
     export HPSS_PROJDIR=$PROJHOME
     #module load PrgEnv-cray
+    if [[ ! -z ${LMOD_CMD+x} ]]; then
+      ## ... Add custom modules to path
+      [[ -d $HOME/modulefiles/$HOST_SHORT ]] && module use $HOME/modulefiles/$HOST_SHORT
+    fi
+    export WEAKLIB_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
+    export THORNADO_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
 elif [[ $FACILITY = "NERSC" ]]; then
     export WORKDIR=$CSCRATCH
     export PROJHOME=/project/projectdirs/$PROJID

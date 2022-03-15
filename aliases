@@ -77,12 +77,17 @@ elif [ $HOST_SHORT == "spock" ]; then
 ## SLURM aliases for CRAY CoE machines
 elif [ $HOST_SHORT == "poplar" -o $HOST_SHORT == "tulip" -o $HOST_SHORT == "birch" ]; then
 
-    ## Show only jobs for $USER
-    alias sqsu="squeue -u $USER"
+    ## squeue wrapper (from NERSC)
+    alias sqs="squeue -o \"%16i %2t %9u %12j  %5D %.10l %.10M   %20V %15q %20S %14f %15R\""
 
-    ## Launch interactive job (V100 nodes)
-    alias sbatchi="salloc -N 1 -p v100 -t 02:00:00"
-    #alias sbatchi="salloc -N 1 -p amdMI60 -t 02:00:00"
+    ## Show only jobs for $USER
+    alias squ="sqs -u $USER"
+    ## Show only jobs for other users in group
+    alias sqg="sqs -u $PROJ_USERS"
+
+    ## Launch interactive job
+    alias sbatchi="salloc -N 1 -p ecp -t 03:00:00"
+    #alias sbatchi="salloc -N 1 -p amdMI60 -t 03:00:00"
 
     ## Expand max column width for sqs
     #alias sqs="sqs -m 30"
