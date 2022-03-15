@@ -335,12 +335,12 @@ elif [[ $FACILITY = "local" ]]; then
         ## Open-MPI
         export OMPI_DIR=/usr/local
         export OMPI_ROOT=$OMPI_DIR
-        export OMPI_CC=gcc-9
-        export OMPI_CXX=g++-9
-        export OMPI_FC=gfortran-9
+        export OMPI_CC=gcc-11
+        export OMPI_CXX=g++-11
+        export OMPI_FC=gfortran-11
 
         ## HDF5
-        export HDF5_DIR=/usr/local/Cellar/hdf5-parallel/1.10.6
+        export HDF5_DIR=/usr/local/Cellar/hdf5-parallel/1.12.0
         export HDF5_ROOT=$HDF5_DIR
         export HDF5_INCLUDE_DIRS=$HDF5_DIR/include
         export HDF5_INCLUDE_OPTS=$HDF5_INCLUDE_DIRS
@@ -354,6 +354,20 @@ elif [[ $FACILITY = "local" ]]; then
         ## Default machine for weaklib/thornado
         export WEAKLIB_MACHINE=mac_gnu
         export THORNADO_MACHINE=mac_gnu
+
+        ## Android SDK
+        export ANDROID_HOME=/Users/$USER/Library/Android/sdk
+        export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH
+
+        export BOOST_ROOT=/usr/local/Cellar/boost/1.76.0/include
+        export QTDIR=/usr/local/Cellar/qt@5/5.15.2
+
+        export PATH=$QTDIR/bin:$PATH
+
+        export CMAKE_MODULE_PATH=$QTDIR/lib/cmake
+        export CMAKE_C_COMPILER=gcc-11
+        export CMAKE_CXX_COMPILER=g++-11
+        export CMAKE_FC_COMPILER=gfortran-11
      fi
 fi
 
