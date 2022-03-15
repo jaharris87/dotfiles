@@ -58,7 +58,7 @@ if [ $HOST_SHORT == "summit" -o $HOST_SHORT == "summitdev" -o $HOST_SHORT == "as
     alias bjobsls="bjobs -o 'sub_cwd'"
 
 ## SLURM aliases for Spock
-elif [ $HOST_SHORT == "spock" ]; then
+elif [ $HOST_SHORT == "spock" -o $HOST_SHORT == "crusher" ]; then
 
     ## squeue wrapper (from NERSC)
     alias sqs="squeue -o \"%16i %2t %9u %12j  %5D %.10l %.10M   %20V %15q %20S %14f %15R\""

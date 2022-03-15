@@ -180,6 +180,11 @@ if [[ $FACILITY = "OLCF" ]]; then
         export MEMBERWORK=/gpfs/alpine/scratch/$USER
         export PROJWORK=/gpfs/alpine/proj-shared
         export WORLDWORK=/gpfs/alpine/world-shared
+    elif [[ -d /gpfs/alpinetds ]]; then
+        ## Ascent
+        export MEMBERWORK=/gpfs/alpinetds/scratch/$USER
+        export PROJWORK=/gpfs/alpinetds/proj-shared
+        export WORLDWORK=/gpfs/alpinetds/world-shared
     elif [[ -d /gpfs/wolf ]]; then
         ## Ascent
         export MEMBERWORK=/gpfs/wolf/scratch/$USER
@@ -205,6 +210,8 @@ if [[ $FACILITY = "OLCF" ]]; then
       module try-load git
       ## Load newer subversion
       module try-load subversion
+      ## Load python
+      module try-load python
     fi
     ## Add manually built diffutils to paths
     if [[ -d $HOME/sw/$HOST_SHORT/diffutils ]]; then
