@@ -23,7 +23,7 @@ alias lsd="ls -oUd */"
 alias lsa="ls -oa"
 
 ## Set SVN colors
-alias svn="python $HOME/misc/svn-color/svn-color.py"
+alias svn="python3 $HOME/misc/svn-color/svn-color.py"
 alias svnlog="svn log -l 5 -v"
 
 ## Set diff colors (default palette is --palette="rs=0:hd=1:ad=32:de=31:ln=36") (only available in diffutils version >= 3.4)
