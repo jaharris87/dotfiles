@@ -1674,8 +1674,8 @@ au BufNewFile,BufRead [rR]antfile,*.rant,[rR]akefile,*.rake	setf ruby
 au BufNewFile,BufRead *.rs			setf rust
 au BufNewFile,BufRead Cargo.lock,*/.cargo/config,*/.cargo/credentials	setf toml
 
-" S-lang (or shader language, or SmallLisp)
-au BufNewFile,BufRead *.sl			setf slang
+"" S-lang (or shader language, or SmallLisp)
+"au BufNewFile,BufRead *.sl			setf slang
 
 " Samba config
 au BufNewFile,BufRead smb.conf			setf samba
