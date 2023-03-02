@@ -671,6 +671,7 @@ if has("fname_case")
   au BufNewFile,BufRead *.F,*.FOR,*.FPP,*.FTN,*.F77,*.F90,*.F95,*.F03,*.F08	 setf fortran
 endif
 au BufNewFile,BufRead   *.f,*.for,*.fortran,*.fpp,*.ftn,*.f77,*.f90,*.f95,*.f03,*.f08  setf fortran
+au BufNewFile,BufRead   *.f.*,*.for.*,*.fortran.*,*.fpp.*,*.ftn.*,*.f77.*,*.f90.*,*.f95.*  setf fortran
 au BufNewFile,BufRead   *-mc			setf fortran
 au BufNewFile,BufRead   *.nml,*.namelist 	setf fortran
 au BufNewFile,BufRead   *.fh 			setf fortran

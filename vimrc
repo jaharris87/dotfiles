@@ -171,3 +171,4 @@ au! BufRead,BufNewFile [mM]akefile.h* set filetype=make
 ":imap ` <Esc>
 
 "let g:DiffUnit='Char'
+"let g:DiffPairVisible=2

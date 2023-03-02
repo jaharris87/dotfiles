@@ -57,11 +57,11 @@ if [ $HOST_SHORT == "summit" -o $HOST_SHORT == "summitdev" -o $HOST_SHORT == "as
     ## Submit directory of job
     alias bjobsls="bjobs -o 'sub_cwd'"
 
-## SLURM aliases for Spock
-elif [ $HOST_SHORT == "spock" -o $HOST_SHORT == "crusher" ]; then
+## SLURM aliases for OLCF
+elif [ $HOST_SHORT == "spock" -o $HOST_SHORT == "crusher" -o $HOST_SHORT == "frontier" ]; then
 
     ## squeue wrapper (from NERSC)
-    alias sqs="squeue -o \"%16i %2t %9u %12j  %5D %.10l %.10M   %20V %15q %20S %14f %15R\""
+    alias sqs="squeue -o \"%16i %2t %9u %7a %12j  %5D %.10l %.10M   %20V %15q %20S %14f %15R\""
 
     ## Show only jobs for $USER
     alias squ="sqs -u $USER"
@@ -69,10 +69,14 @@ elif [ $HOST_SHORT == "spock" -o $HOST_SHORT == "crusher" ]; then
     alias sqg="sqs -u $PROJ_USERS"
 
     ## Launch interactive job
-    alias sbatchi="salloc -A AST136 -t 02:00:00 -p ecp -N 1"
+    alias sbatchi="salloc -A $PROJID -t 02:00:00 -p ecp -N 1"
 
     ## Detailed job info
     alias sshow="scontrol show jobid -d"
+
+    ## Detailed node states
+    alias snodes="sinfo -O PartitionName:12,StateComplete:50,Nodes:10,Reason:90 -S +P,+E,+t"
+    alias savail="sinfo -O PartitionName:12,Nodes:10,StateComplete:50 -S +P,+E,+t -t alloc,idle"
 
 ## SLURM aliases for CRAY CoE machines
 elif [ $HOST_SHORT == "poplar" -o $HOST_SHORT == "tulip" -o $HOST_SHORT == "birch" ]; then

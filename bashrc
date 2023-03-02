@@ -102,8 +102,11 @@ fi
 if [[ $FACILITY = "OLCF" ]]; then
     if [[ $HOST_SHORT = "ascent" ]]; then
         export PROJID="gen109"
-    elif [[ $HOST_SHORT = "summit" || $HOST_SHORT = "spock" ]]; then
+    elif [[ $HOST_SHORT = "summit" || $HOST_SHORT = "spock" || $HOST_SHORT = "crusher" ]]; then
         export PROJID="ast136"
+    elif [[ $HOST_SHORT = "frontier" ]]; then
+        #export PROJID="ast136"
+        export PROJID="stf006"
     else
         export PROJID="stf006"
     fi
@@ -175,7 +178,15 @@ fi
 ## Set facility/machine specific environment variables
 if [[ $FACILITY = "OLCF" ]]; then
     ## Scratch directory environment variables for Summit/SummitDev are not yet created by default
-    if [[ -d /gpfs/alpine ]]; then
+    if [[ -d /lustre/orion ]]; then
+        ## Frontier
+        #export MEMBERWORK=/lustre/orion/scratch/$USER
+        #export PROJWORK=/lustre/orion/proj-shared
+        #export WORLDWORK=/lustre/orion/world-shared
+        export MEMBERWORK=/lustre/orion/$PROJID/scratch/$USER
+        export PROJWORK=/lustre/orion/$PROJID/proj-shared/$USER
+        export WORLDWORK=/lustre/orion/$PROJID/world-shared/$USER
+    elif [[ -d /gpfs/alpine ]]; then
         ## Summit, SummitDev, Peak, Rhea
         export MEMBERWORK=/gpfs/alpine/scratch/$USER
         export PROJWORK=/gpfs/alpine/proj-shared
@@ -196,14 +207,19 @@ if [[ $FACILITY = "OLCF" ]]; then
         export PROJWORK=$HOME
         export WORLDWORK=$HOME
     fi
-    [[ -d $MEMBERWORK/$PROJID ]] && export WORKDIR=$MEMBERWORK/$PROJID || export WORKDIR=$HOME
-    [[ -d /ccs/proj/$PROJID ]] && export PROJHOME=/ccs/proj/$PROJID || export PROJHOME=$PROJWORK
-    [[ -d $PROJWORK/$PROJID/$USER ]] && export PROJWORKDIR=$PROJWORK/$PROJID/$USER || export PROJWORKDIR=$WORKDIR
+    [[ -d /ccs/proj/$PROJID ]] && export PROJHOME=/ccs/proj/ast136 || export PROJHOME=$PROJWORK
+    if [[ -d /lustre/orion ]]; then
+        export WORKDIR=$MEMBERWORK
+        export PROJWORKDIR=$PROJWORK
+    else
+        [[ -d $MEMBERWORK/$PROJID ]] && export WORKDIR=$MEMBERWORK/$PROJID || export WORKDIR=$HOME
+        [[ -d $PROJWORK/$PROJID/$USER ]] && export PROJWORKDIR=$PROJWORK/$PROJID/$USER || export PROJWORKDIR=$WORKDIR
+    fi
     export HPSS_PROJDIR=/proj/$PROJID
     ## If system has Lmod ...
     if [[ ! -z ${LMOD_CMD+x} ]]; then
       ## ... Add custom modules to path
-      [[ -d $WORLDWORK/$USER/modulefiles/$HOST_SHORT ]] && module use $WORLDWORK/$USER/modulefiles/$HOST_SHORT
+      [[ -d $WORLDWORK/$PROJID/modulefiles/$HOST_SHORT ]] && module use $WORLDWORK/$PROJID/modulefiles/$HOST_SHORT
       [[ -d $PROJHOME/modulefiles/$HOST_SHORT ]] && module use $PROJHOME/modulefiles/$HOST_SHORT
       [[ -d $HOME/modulefiles/$HOST_SHORT ]] && module use $HOME/modulefiles/$HOST_SHORT
       ## Load newer git
@@ -239,6 +255,10 @@ if [[ $FACILITY = "OLCF" ]]; then
         export PATH=$HOME/sw/$HOST_SHORT/screen/bin:$PATH
         export MANPATH=$HOME/sw/$HOST_SHORT/screen/share/man:$MANPATH
         export INFOPATH=$HOME/sw/$HOST_SHORT/screen/share/info:$MANPATH
+    fi
+    ## Add local bin to path
+    if [[ -d $HOME/.local/bin ]]; then
+        export PATH=$HOME/.local/bin:$PATH
     fi
     ## Default machine for weaklib/thornado
     export WEAKLIB_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
@@ -425,13 +445,19 @@ export XNET_FLASH5=$FLASH5/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/
 export HELMHOLTZ_FLASH5=$FLASH5/source/physics/Eos/EosMain/Helmholtz
 export FLASH5_RUN=$PROJWORKDIR/FLASH5_run
 
-export FLASH_DIR=$FLASH5
+export FLASHX=$FLASH_ROOT/Flash-X
+export XNET_FLASHX=$FLASH5/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
+export HELMHOLTZ_FLASHX=$FLASH5/source/physics/Eos/EosMain/Helmholtz
+export FLASHX_RUN=$PROJWORKDIR/Flash-X_run
+
+export FLASH_DIR=$FLASHX
 export XNET_FLASH=$FLASH_DIR/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
 export HELMHOLTZ_FLASH=$FLASH_DIR/source/physics/Eos/EosMain/Helmholtz
 export WEAKLIB_FLASH=$FLASH_DIR/source/physics/Eos/EosMain/WeakLib
 export RADTRANS_FLASH=$FLASH_DIR/source/physics/RadTrans/RadTransMain
+export THORNADO_FLASH=$FLASH_DIR/source/physics/RadTrans/RadTransMain/TwoMoment/Thornado
 export SIM_FLASH=$FLASH_DIR/source/Simulation/SimulationMain
-export FLASH_RUN=$FLASH5_RUN
+export FLASH_RUN=$FLASHX_RUN
 
 if [[ -d $HOME/magma ]]; then
     export MAGMA_DIR=$HOME/magma
