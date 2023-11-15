@@ -29,6 +29,10 @@ else
     export PS1="\[$bold$yellow\]\u@\h\[$reset\]: \[$bold$white\]\w\[$reset\]\$(parse_git_branch)> "
 fi
 
+if [[ -f $HOME/.git-completion.bash ]]; then
+    . $HOME/.git-completion.bash
+fi
+
 #export PS1="\[$bold$yellow\]\u@\h\[$reset\]: \[$bold$white\]\w\[$reset\]> "
 
 ## Export commands to history as they are executed (allows shared history between screen sessions)
@@ -345,22 +349,22 @@ elif [[ $FACILITY = "local" ]]; then
         #export FC=gfortran-9
 
         ## Homebrew compilers
-        #export HOMEBREW_CC=gcc-9
-        #export HOMEBREW_CXX=g++-9
-        #export HOMEBREW_CPP=cpp-9
-        #export HOMEBREW_CXXCPP=cpp-9
-        #export HOMEBREW_FC=gfortran-9
-        #export HOMEBREW_VERBOSE=1
+        export HOMEBREW_CC=gcc-13
+        export HOMEBREW_CXX=g++-13
+        export HOMEBREW_CPP=cpp-13
+        export HOMEBREW_CXXCPP=cpp-13
+        export HOMEBREW_FC=gfortran-13
+        export HOMEBREW_VERBOSE=1
 
         ## Open-MPI
         export OMPI_DIR=/usr/local
         export OMPI_ROOT=$OMPI_DIR
-        export OMPI_CC=gcc-11
-        export OMPI_CXX=g++-11
-        export OMPI_FC=gfortran-11
+        export OMPI_CC=gcc-13
+        export OMPI_CXX=g++-13
+        export OMPI_FC=gfortran-13
 
         ## HDF5
-        export HDF5_DIR=/usr/local/Cellar/hdf5-parallel/1.12.0
+        export HDF5_DIR=/usr/local/Cellar/hdf5-parallel/1.14.0
         export HDF5_ROOT=$HDF5_DIR
         export HDF5_INCLUDE_DIRS=$HDF5_DIR/include
         export HDF5_INCLUDE_OPTS=$HDF5_INCLUDE_DIRS
@@ -385,9 +389,9 @@ elif [[ $FACILITY = "local" ]]; then
         export PATH=$QTDIR/bin:$PATH
 
         export CMAKE_MODULE_PATH=$QTDIR/lib/cmake
-        export CMAKE_C_COMPILER=gcc-11
-        export CMAKE_CXX_COMPILER=g++-11
-        export CMAKE_FC_COMPILER=gfortran-11
+        export CMAKE_C_COMPILER=gcc-13
+        export CMAKE_CXX_COMPILER=g++-13
+        export CMAKE_FC_COMPILER=gfortran-13
      fi
 fi
 
@@ -446,8 +450,8 @@ export HELMHOLTZ_FLASH5=$FLASH5/source/physics/Eos/EosMain/Helmholtz
 export FLASH5_RUN=$PROJWORKDIR/FLASH5_run
 
 export FLASHX=$FLASH_ROOT/Flash-X
-export XNET_FLASHX=$FLASH5/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
-export HELMHOLTZ_FLASHX=$FLASH5/source/physics/Eos/EosMain/Helmholtz
+export XNET_FLASHX=$FLASHX/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
+export HELMHOLTZ_FLASHX=$FLASHX/source/physics/Eos/EosMain/Helmholtz
 export FLASHX_RUN=$PROJWORKDIR/Flash-X_run
 
 export FLASH_DIR=$FLASHX
