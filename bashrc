@@ -102,38 +102,34 @@ else
     export FACILITY="local"
 fi
 
-## Set default project ID
+## Set default project IDs
+export PROJIDS=$(groups | grep -o '\<[a-z]\+[0-9]\+\>')
+for PID in $PROJIDS; do
+    PID_UC=$(echo $PID | tr '[:lower:]' '[:upper:]')
+    export ${PID_UC}_USERS=$(getent group $PID | sed 's/^.*://')
+done
 if [[ $FACILITY = "OLCF" ]]; then
     if [[ $HOST_SHORT = "ascent" ]]; then
         export PROJID="gen109"
-    elif [[ $HOST_SHORT = "summit" || $HOST_SHORT = "spock" || $HOST_SHORT = "crusher" ]]; then
-        export PROJID="ast136"
-    elif [[ $HOST_SHORT = "frontier" ]]; then
-        #export PROJID="ast136"
+    elif [[ $HOST_SHORT = "summit" ]]; then
+        export PROJID="ast203"
+    elif [[ $HOST_SHORT = "spock" || $HOST_SHORT = "borg" || $HOST_SHORT = "crusher" ]]; then
         export PROJID="stf006"
+    elif [[ $HOST_SHORT = "frontier" ]]; then
+        export PROJID="ast137"
     else
         export PROJID="stf006"
     fi
-    export PROJ_USERS=$(getent group $PROJID | sed 's/^.*://')
 elif [[ $FACILITY = "CRAY" ]]; then
     export PROJID=""
-    export PROJ_USERS=""
 elif [[ $FACILITY = "NERSC" ]]; then
     export PROJID="m1373"
-    export PROJ_USERS=$(getent group $PROJID | sed 's/^.*://')
 elif [[ $FACILITY = "ALCF" ]]; then
     export PROJID=""
-    export PROJ_USERS=""
-elif [[ $FACILITY = "NCSA" ]]; then
-    export PROJID="banp"
-    export PROJ_USERS=$(getent group PRAC_$PROJID | sed 's/^.*://')
-elif [[ $FACILITY = "NICS" ]]; then
-    export PROJID="UT-MEZZ-AACE"
-    export PROJ_USERS=""
 else
     export PROJID=""
-    export PROJ_USERS=""
 fi
+export PROJ_USERS=$(getent group $PROJID | sed 's/^.*://')
 
 ## Load custom aliases
 if [[ -f $HOME/.aliases.$HOST_SHORT ]]; then
@@ -156,7 +152,10 @@ vertestresult=$?
 unset bashver vertest vertestresult
 
 ## Ignore duplicate history entries
-export HISTCONTROL=ignoredups
+#export HISTCONTROL=ignoredups
+
+## Ignore duplicate history entries AND entries beginning with a space
+export HISTCONTROL=ignoreboth
 
 ## Limit to number of commands saved in history
 export HISTFILESIZE=1000000
@@ -174,27 +173,27 @@ export LESS="--ignore-case --status-column --RAW-CONTROL-CHARS -F $LESS"
 [[ ! -z ${PE_ENV+x} ]] && export LC_PE_ENV=$(echo ${PE_ENV} | tr A-Z a-z)
 
 ## Number of processors on this node
-if [[ -f /proc/cpuinfo ]]; then
-    export NPROC=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
-    export NPROCS=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
-fi
+#if [[ -f /proc/cpuinfo ]]; then
+#    export NPROC=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
+#    export NPROCS=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
+#fi
 
 ## Set facility/machine specific environment variables
 if [[ $FACILITY = "OLCF" ]]; then
     ## Scratch directory environment variables for Summit/SummitDev are not yet created by default
     if [[ -d /lustre/orion ]]; then
         ## Frontier
-        #export MEMBERWORK=/lustre/orion/scratch/$USER
-        #export PROJWORK=/lustre/orion/proj-shared
-        #export WORLDWORK=/lustre/orion/world-shared
-        export MEMBERWORK=/lustre/orion/$PROJID/scratch/$USER
-        export PROJWORK=/lustre/orion/$PROJID/proj-shared/$USER
-        export WORLDWORK=/lustre/orion/$PROJID/world-shared/$USER
-    elif [[ -d /gpfs/alpine ]]; then
+        export MEMBERWORK=/lustre/orion/scratch/$USER
+        export PROJWORK=/lustre/orion/proj-shared
+        export WORLDWORK=/lustre/orion/world-shared
+        #export MEMBERWORK=/lustre/orion/$PROJID/scratch/$USER
+        #export PROJWORK=/lustre/orion/$PROJID/proj-shared/$USER
+        #export WORLDWORK=/lustre/orion/$PROJID/world-shared/$USER
+    elif [[ -d /gpfs/alpine2 ]]; then
         ## Summit, SummitDev, Peak, Rhea
-        export MEMBERWORK=/gpfs/alpine/scratch/$USER
-        export PROJWORK=/gpfs/alpine/proj-shared
-        export WORLDWORK=/gpfs/alpine/world-shared
+        export MEMBERWORK=/gpfs/alpine2/scratch/$USER
+        export PROJWORK=/gpfs/alpine2/proj-shared
+        export WORLDWORK=/gpfs/alpine2/world-shared
     elif [[ -d /gpfs/alpinetds ]]; then
         ## Ascent
         export MEMBERWORK=/gpfs/alpinetds/scratch/$USER
@@ -211,27 +210,41 @@ if [[ $FACILITY = "OLCF" ]]; then
         export PROJWORK=$HOME
         export WORLDWORK=$HOME
     fi
-    [[ -d /ccs/proj/$PROJID ]] && export PROJHOME=/ccs/proj/ast136 || export PROJHOME=$PROJWORK
-    if [[ -d /lustre/orion ]]; then
-        export WORKDIR=$MEMBERWORK
-        export PROJWORKDIR=$PROJWORK
-    else
-        [[ -d $MEMBERWORK/$PROJID ]] && export WORKDIR=$MEMBERWORK/$PROJID || export WORKDIR=$HOME
-        [[ -d $PROJWORK/$PROJID/$USER ]] && export PROJWORKDIR=$PROJWORK/$PROJID/$USER || export PROJWORKDIR=$WORKDIR
-    fi
+    [[ -d $MEMBERWORK/$PROJID ]] && export WORKDIR=$MEMBERWORK/$PROJID || export WORKDIR=$MEMBERWORK/stf006
+
+    ## Project-specific directories
+    [[ -d $PROJWORK/$PROJID/$USER ]] && export PROJWORKDIR=$PROJWORK/$PROJID/$USER || export PROJWORKDIR=$WORKDIR
+    [[ -d /ccs/proj/$PROJID ]] && export PROJHOME=/ccs/proj/$PROJID || export PROJHOME=/ccs/proj/stf006
     export HPSS_PROJDIR=/proj/$PROJID
+    for PID in $PROJIDS; do
+        PID_UC=$(echo $PID | tr '[:lower:]' '[:upper:]')
+        [[ -d $PROJWORK/$PID/$USER ]] && export ${PID_UC}_WORKDIR=$PROJWORK/${PID}/$USER || export ${PID_UC}_WORKDIR=$WORKDIR
+        [[ -d /ccs/proj/${PID} ]] && export ${PID_UC}_HOME=/ccs/proj/${PID} || export ${PID_UC}_HOME=$PROJHOME
+        export HPSS_${PID_UC}_DIR=/proj/$PID
+    done
+
     ## If system has Lmod ...
     if [[ ! -z ${LMOD_CMD+x} ]]; then
-      ## ... Add custom modules to path
-      [[ -d $WORLDWORK/$PROJID/modulefiles/$HOST_SHORT ]] && module use $WORLDWORK/$PROJID/modulefiles/$HOST_SHORT
-      [[ -d $PROJHOME/modulefiles/$HOST_SHORT ]] && module use $PROJHOME/modulefiles/$HOST_SHORT
-      [[ -d $HOME/modulefiles/$HOST_SHORT ]] && module use $HOME/modulefiles/$HOST_SHORT
-      ## Load newer git
-      module try-load git
-      ## Load newer subversion
-      module try-load subversion
-      ## Load python
-      module try-load python
+        ## ... Add custom modules to path
+        ## `module use` command will prefer whichever path was added most recently,
+        ## and we want the order of preference to be user > project > world
+        for PID in $PROJIDS; do
+            PID_UC=$(echo $PID | tr '[:lower:]' '[:upper:]')
+            PID_HOME=${PID_UC}_HOME
+            [[ -d $WORLDWORK/$PID/modulefiles/$HOST_SHORT ]] && module use $WORLDWORK/$PID/modulefiles/$HOST_SHORT
+        done
+        for PID in $PROJIDS; do
+            PID_UC=$(echo $PID | tr '[:lower:]' '[:upper:]')
+            PID_HOME=${PID_UC}_HOME
+            [[ -d /ccs/proj/${PID}/modulefiles/$HOST_SHORT ]] && module use /ccs/proj/${PID}/modulefiles/$HOST_SHORT
+        done
+        [[ -d $HOME/modulefiles/$HOST_SHORT ]] && module use $HOME/modulefiles/$HOST_SHORT
+        ## Load newer git
+        module try-load git
+        ## Load newer subversion
+        module try-load subversion
+        ## Load python
+        module try-load python
     fi
     ## Add manually built diffutils to paths
     if [[ -d $HOME/sw/$HOST_SHORT/diffutils ]]; then
@@ -438,40 +451,40 @@ export BOXLIB_DIR=$BOXLIB_ROOT/BoxLib
 export BOXLIB_HOME=$BOXLIB_ROOT/BoxLib
 #export BOXLIB_USE_MPI_WRAPPERS=1
 
-[[ -d $PROJHOME/$USER ]] && export FLASH_ROOT=$PROJHOME/$USER || export FLASH_ROOT=$HOME
+[[ -d $AST136_WORKDIR ]] && export WEAKLIB_TABLES=$AST136_WORKDIR/weaklib-tables || export WEAKLIB_TABLES=$PROJWORKDIR/weaklib-tables
+
+[[ -d $AST136_HOME/$USER ]] && export FLASH_ROOT=$AST136_HOME/$USER || export FLASH_ROOT=$PROJHOME/$USER
+[[ -d $AST136_WORKDIR ]] && export FLASH_RUN_ROOT=$AST136_WORKDIR || export FLASH_RUN_ROOT=$PROJWORKDIR
+[[ ! -d $FLASH_ROOT ]] && export FLASH_ROOT=$HOME
+[[ ! -d $FLASH_RUN_ROOT ]] && export FLASH_RUN_ROOT=$HOME
+
 export FLASHOR=$FLASH_ROOT/FLASHOR
+export FLASHOR_RUN=$FLASH_RUN_ROOT/FLASHOR_run
 export XNET_FLASHOR=$FLASHOR/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
 export HELMHOLTZ_FLASHOR=$FLASHOR/source/physics/Eos/EosMain/Helmholtz
-export FLASHOR_RUN=$PROJWORKDIR/FLASHOR_run
 
 export FLASH5=$FLASH_ROOT/FLASH5
+export FLASH5_RUN=$FLASH_RUN_ROOT/FLASH5_run
 export XNET_FLASH5=$FLASH5/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
 export HELMHOLTZ_FLASH5=$FLASH5/source/physics/Eos/EosMain/Helmholtz
-export FLASH5_RUN=$PROJWORKDIR/FLASH5_run
 
 export FLASHX=$FLASH_ROOT/Flash-X
-export XNET_FLASHX=$FLASHX/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
-export HELMHOLTZ_FLASHX=$FLASHX/source/physics/Eos/EosMain/Helmholtz
-export FLASHX_RUN=$PROJWORKDIR/Flash-X_run
+export FLASHX_RUN=$FLASH_RUN_ROOT/Flash-X_run
 
 export FLASH_DIR=$FLASHX
+export FLASH_RUN=$FLASHX_RUN
 export XNET_FLASH=$FLASH_DIR/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
 export HELMHOLTZ_FLASH=$FLASH_DIR/source/physics/Eos/EosMain/Helmholtz
 export WEAKLIB_FLASH=$FLASH_DIR/source/physics/Eos/EosMain/WeakLib
 export RADTRANS_FLASH=$FLASH_DIR/source/physics/RadTrans/RadTransMain
 export THORNADO_FLASH=$FLASH_DIR/source/physics/RadTrans/RadTransMain/TwoMoment/Thornado
+export SPARK_FLASH=$FLASH_DIR/source/physics/Hydro/HydroMain/Spark
 export SIM_FLASH=$FLASH_DIR/source/Simulation/SimulationMain
-export FLASH_RUN=$FLASHX_RUN
 
-if [[ -d $HOME/magma ]]; then
-    export MAGMA_DIR=$HOME/magma
-    export MAGMA_ROOT=$MAGMA_DIR
-fi
-
-if [[ -d $HOME/hypre ]]; then
-    export HYPRE_DIR=$HOME/hypre
-    export HYPRE_ROOT=$HYPRE_DIR
-fi
+[[ -d $HOME/magma ]] && export MAGMA_DIR=$HOME/magma
+[[ -d $HOME/hypre ]] && export HYPRE_DIR=$HOME/hypre
+[[ ! -z ${MAGMA_DIR} ]] && export MAGMA_ROOT=$MAGMA_DIR
+[[ ! -z ${HYPRE_DIR} ]] && export HYPRE_ROOT=$HYPRE_DIR
 
 export HELMHOLTZ_PATH=$HOME/helmholtz
 

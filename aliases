@@ -58,7 +58,7 @@ if [ $HOST_SHORT == "summit" -o $HOST_SHORT == "summitdev" -o $HOST_SHORT == "as
     alias bjobsls="bjobs -o 'sub_cwd'"
 
 ## SLURM aliases for OLCF
-elif [ $HOST_SHORT == "spock" -o $HOST_SHORT == "crusher" -o $HOST_SHORT == "frontier" ]; then
+elif [ $HOST_SHORT == "spock" -o $HOST_SHORT == "borg" -o $HOST_SHORT == "crusher" -o $HOST_SHORT == "frontier" ]; then
 
     ## squeue wrapper (from NERSC)
     alias sqs="squeue -o \"%16i %2t %9u %7a %12j  %5D %.10l %.10M   %20V %15q %20S %14f %15R\""
@@ -73,6 +73,9 @@ elif [ $HOST_SHORT == "spock" -o $HOST_SHORT == "crusher" -o $HOST_SHORT == "fro
 
     ## Detailed job info
     alias sshow="scontrol show jobid -d"
+
+    ## Submit directory of job
+    alias sqls="squeue -o \"%Z\" -j"
 
     ## Detailed node states
     alias snodes="sinfo -O PartitionName:12,StateComplete:50,Nodes:10,Reason:90 -S +P,+E,+t"
