@@ -293,6 +293,45 @@ elif [[ $FACILITY = "local" ]]; then
 
         ## Add VisIt bin directory to PATH
         export PATH=/usr/local/visit/bin:$PATH
+
+        ## Add Spack to PATH
+        #export SPACK_ROOT=/home/hrh/spack
+        #. $SPACK_ROOT/share/spack/setup-env.sh
+
+        ## Add PGI to PATH
+        export PGI=/opt/pgi
+        export PATH=$PGI/linux86-64/19.10/bin:$PATH
+        export LD_LIBRARY_PATH=$PGI/linux86-64/19.10/lib:$LD_LIBRARY_PATH
+        export MANPATH=$PGI/linux86-64/19.10/man:$MANPATH
+        export LM_LICENSE_FILE=$PGI/license.dat:$LM_LICENSE_FILE
+
+        ## Add Intel to PATH
+        #export INTEL_PATH=/opt/intel/compilers_and_libraries_2020/linux
+        ##export PATH=$INTEL_PATH/bin/intel64:$PATH
+        ##export MANPATH=$MANPATH:$INTEL_PATH/man/common
+        ##export MKLROOT=$INTEL_PATH/mkl
+        #. $INTEL_PATH/bin/compilervars.sh intel64
+
+        if [[ $HOST_SHORT = "etacar" ]]; then
+
+          ## Open-MPI
+          export OMPI_DIR=$HOME/sw/etacar/gcc/11.1.0/openmpi-4.0.3
+          export OMPI_ROOT=$OMPI_DIR
+          export PATH=$OMPI_DIR/bin:$PATH
+
+          ## MPICH
+          #export MPICH_DIR=/usr/lib/mpich
+          #export MPICH_ROOT=$MPICH_DIR
+
+          ## HDF5
+          export HDF5_DIR=$HOME/sw/etacar/gcc/11.1.0/hdf5-openmpi-1.12.2
+          export HDF5_ROOT=$HDF5_DIR
+          export HDF5_INCLUDE_DIRS=$HDF5_DIR/include
+          export HDF5_INCLUDE_OPTS=$HDF5_INCLUDE_DIRS
+          export PATH=$HDF5_DIR/bin:$PATH
+
+        fi
+
      fi
 fi
 
