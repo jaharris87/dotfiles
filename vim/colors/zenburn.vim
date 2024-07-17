@@ -451,7 +451,7 @@ else
         hi Visual        guibg=#0f0f0f
         hi VisualNos     guibg=#0f0f0f
         if &t_Co > 255
-            hi Visual ctermbg=0
+            hi Visual term=reverse ctermfg=230 ctermbg=236
         endif
     else
         " low contrast
