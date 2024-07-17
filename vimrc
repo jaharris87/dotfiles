@@ -165,10 +165,13 @@ au! BufRead,BufNewFile controls_* set filetype=fortran
 au! BufRead,BufNewFile [mM]akefile.h* set filetype=make
 
 " Don't use fixed-line width syntax or pattern matching... ever
-"let b:fortran_fixed_source = 0
+let b:fortran_fixed_source = 0
 
 " Use backtick for escape
 ":imap ` <Esc>
 
 "let g:DiffUnit='Char'
 "let g:DiffPairVisible=2
+
+" Default to not read-only in vimdiff
+"set noro
