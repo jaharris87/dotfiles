@@ -103,33 +103,35 @@ else
 fi
 
 ## Set default project IDs
-export PROJIDS=$(groups | grep -o '\<[a-z]\+[0-9]\+\>')
-for PID in $PROJIDS; do
-    PID_UC=$(echo $PID | tr '[:lower:]' '[:upper:]')
-    export ${PID_UC}_USERS=$(getent group $PID | sed 's/^.*://')
-done
-if [[ $FACILITY = "OLCF" ]]; then
-    if [[ $HOST_SHORT = "ascent" ]]; then
-        export PROJID="gen109"
-    elif [[ $HOST_SHORT = "summit" ]]; then
-        export PROJID="ast203"
-    elif [[ $HOST_SHORT = "spock" || $HOST_SHORT = "borg" || $HOST_SHORT = "crusher" ]]; then
-        export PROJID="stf006"
-    elif [[ $HOST_SHORT = "frontier" ]]; then
-        export PROJID="ast137"
-    else
-        export PROJID="stf006"
-    fi
-elif [[ $FACILITY = "CRAY" ]]; then
-    export PROJID=""
-elif [[ $FACILITY = "NERSC" ]]; then
-    export PROJID="m1373"
-elif [[ $FACILITY = "ALCF" ]]; then
-    export PROJID=""
-else
-    export PROJID=""
+if [[ ! "$(uname)" = "Darwin" ]]; then
+  export PROJIDS=$(groups | grep -o '\<[a-z]\+[0-9]\+\>')
+  if [[ $FACILITY = "OLCF" ]]; then
+      if [[ $HOST_SHORT = "ascent" ]]; then
+          export PROJID="gen109"
+      elif [[ $HOST_SHORT = "summit" ]]; then
+          export PROJID="ast203"
+      elif [[ $HOST_SHORT = "spock" || $HOST_SHORT = "borg" || $HOST_SHORT = "crusher" ]]; then
+          export PROJID="stf006"
+      elif [[ $HOST_SHORT = "frontier" ]]; then
+          export PROJID="ast137"
+      else
+          export PROJID="stf006"
+      fi
+  elif [[ $FACILITY = "CRAY" ]]; then
+      export PROJID=""
+  elif [[ $FACILITY = "NERSC" ]]; then
+      export PROJID="m1373"
+  elif [[ $FACILITY = "ALCF" ]]; then
+      export PROJID=""
+  else
+      export PROJID=""
+  fi
+  for PID in $PROJIDS; do
+      PID_UC=$(echo $PID | tr '[:lower:]' '[:upper:]')
+      export ${PID_UC}_USERS=$(getent group $PID | sed 's/^.*://')
+  done
+  export PROJ_USERS=$(getent group $PROJID | sed 's/^.*://')
 fi
-export PROJ_USERS=$(getent group $PROJID | sed 's/^.*://')
 
 ## Load custom aliases
 if [[ -f $HOME/.aliases.$HOST_SHORT ]]; then
@@ -273,10 +275,6 @@ if [[ $FACILITY = "OLCF" ]]; then
         export MANPATH=$HOME/sw/$HOST_SHORT/screen/share/man:$MANPATH
         export INFOPATH=$HOME/sw/$HOST_SHORT/screen/share/info:$MANPATH
     fi
-    ## Add local bin to path
-    if [[ -d $HOME/.local/bin ]]; then
-        export PATH=$HOME/.local/bin:$PATH
-    fi
     ## Default machine for weaklib/thornado
     export WEAKLIB_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
     export THORNADO_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
@@ -406,6 +404,11 @@ elif [[ $FACILITY = "local" ]]; then
         export CMAKE_CXX_COMPILER=g++-13
         export CMAKE_FC_COMPILER=gfortran-13
      fi
+fi
+
+## Add local bin to path
+if [[ -d $HOME/.local/bin ]]; then
+    export PATH=$HOME/.local/bin:$PATH
 fi
 
 ## Add local directories to environment
