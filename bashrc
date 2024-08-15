@@ -33,6 +33,10 @@ if [[ -f $HOME/.git-completion.bash ]]; then
     . $HOME/.git-completion.bash
 fi
 
+if [[ -f $HOME/.vim-completion.bash ]]; then
+    . $HOME/.vim-completion.bash
+fi
+
 #export PS1="\[$bold$yellow\]\u@\h\[$reset\]: \[$bold$white\]\w\[$reset\]> "
 
 ## Export commands to history as they are executed (allows shared history between screen sessions)
