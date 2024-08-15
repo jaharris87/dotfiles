@@ -311,6 +311,19 @@ elif [[ $FACILITY = "NERSC" ]]; then
     #module load subversion
     ### Unlaod darhsan
     #module unload darshan
+
+    ## If system has Lmod ...
+    if [[ ! -z ${LMOD_CMD+x} ]]; then
+      ## ... Add custom modules to path
+      [[ -d /global/common/software/m1373/modulefiles/$HOST_SHORT ]] && module use /global/common/software/m1373/modulefiles/$HOST_SHORT
+      [[ -d /global/common/software/m3961/modulefiles/$HOST_SHORT ]] && module use /global/common/software/m3961/modulefiles/$HOST_SHORT
+      [[ -d /global/common/software/chimera/modulefiles/$HOST_SHORT ]] && module use /global/common/software/chimera/modulefiles/$HOST_SHORT
+      [[ -d $HOME/modulefiles/$HOST_SHORT ]] && module use $HOME/modulefiles/$HOST_SHORT
+      ## Load newer git
+      module try-load git
+      ## Load newer subversion
+      module try-load subversion
+    fi
 elif [[ $FACILITY = "local" ]]; then
     export WORKDIR=$HOME
     export PROJHOME=$HOME
