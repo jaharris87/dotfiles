@@ -175,3 +175,8 @@ let b:fortran_fixed_source = 0
 
 " Default to not read-only in vimdiff
 "set noro
+
+" ignore these files when completing names and in Ex
+set wildignore=.svn,CVS,.git,*.o,*.a,*.class,*.mo,*.la,*.so,*.obj,*.swp,*.jpg,*.png,*.xpm,*.gif,*.pdf,*.bak,*.beam
+" set of file name suffixes that will be given a lower priority when it comes to matching wildcards
+set suffixes+=.old,.bak,.backup,.tmp
