@@ -33,9 +33,9 @@ if [[ -f $HOME/.git-completion.bash ]]; then
     . $HOME/.git-completion.bash
 fi
 
-if [[ -f $HOME/.vim-completion.bash ]]; then
-    . $HOME/.vim-completion.bash
-fi
+#if [[ -f $HOME/.vim-completion.bash ]]; then
+#    . $HOME/.vim-completion.bash
+#fi
 
 #export PS1="\[$bold$yellow\]\u@\h\[$reset\]: \[$bold$white\]\w\[$reset\]> "
 
@@ -377,22 +377,22 @@ elif [[ $FACILITY = "local" ]]; then
         #export FC=gfortran-9
 
         ## Homebrew compilers
-        export HOMEBREW_CC=gcc-13
-        export HOMEBREW_CXX=g++-13
-        export HOMEBREW_CPP=cpp-13
-        export HOMEBREW_CXXCPP=cpp-13
-        export HOMEBREW_FC=gfortran-13
+        export HOMEBREW_CC=gcc-14
+        export HOMEBREW_CXX=g++-14
+        export HOMEBREW_CPP=cpp-14
+        export HOMEBREW_CXXCPP=cpp-14
+        export HOMEBREW_FC=gfortran-14
         export HOMEBREW_VERBOSE=1
 
         ## Open-MPI
         export OMPI_DIR=/usr/local
         export OMPI_ROOT=$OMPI_DIR
-        export OMPI_CC=gcc-13
-        export OMPI_CXX=g++-13
-        export OMPI_FC=gfortran-13
+        export OMPI_CC=gcc-14
+        export OMPI_CXX=g++-14
+        export OMPI_FC=gfortran-14
 
         ## HDF5
-        export HDF5_DIR=/usr/local/Cellar/hdf5-parallel/1.14.0
+        export HDF5_DIR=/usr/local/Cellar/hdf5-parallel/1.14.5
         export HDF5_ROOT=$HDF5_DIR
         export HDF5_INCLUDE_DIRS=$HDF5_DIR/include
         export HDF5_INCLUDE_OPTS=$HDF5_INCLUDE_DIRS
@@ -438,6 +438,7 @@ export LD_LIBRARY_PATH=$HOME/lib:$LD_LIBRARY_PATH
 export CHIMERA=$HOME/chimera/trunk/Chimera
 export DCHIMERA=$HOME/chimera/tags/D-production
 export FCHIMERA=$HOME/chimera/tags/F-production
+export GCHIMERA=$HOME/chimera/tags/G-production
 export TRACER_READER=$HOME/chimera/trunk/Tools/tracer_reader
 export INITIAL_MODELS=$HOME/chimera/trunk/Initial_Models
 export MODEL_GENERATOR=$INITIAL_MODELS/Model_Generator
