@@ -11,4 +11,5 @@ _vim() {
     COMPREPLY=( $opts )
     return 0
 }
-complete -F _vim vim
+#complete -F _vim vim
+complete -o bashdefault -o default -o nospace -F _vim vim
