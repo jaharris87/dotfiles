@@ -332,31 +332,63 @@ elif [[ $FACILITY = "local" ]]; then
 
     ## Mac OS X
     if [[ "$(uname)" = "Darwin" ]]; then
-        export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-        export MANPATH=/usr/local/share/man:$MANPATH
+
+        [[ -z ${HOMEBREW_PREFIX+x} ]] && export HOMEBREW_PREFIX="$(brew --prefix)"
+        [[ -r "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh" ]] && . "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
+
+        if type brew &>/dev/null
+        then
+          HOMEBREW_PREFIX="$(brew --prefix)"
+          if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]
+          then
+            source "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
+          else
+            for COMPLETION in "${HOMEBREW_PREFIX}/etc/bash_completion.d/"*
+            do
+              [[ -r "${COMPLETION}" ]] && source "${COMPLETION}"
+            done
+          fi
+        fi
+
+        if type brew &>/dev/null
+        then
+          HOMEBREW_PREFIX="$(brew --prefix)"
+          if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]
+          then
+            source "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
+          else
+            for COMPLETION in "${HOMEBREW_PREFIX}/etc/bash_completion.d/"*
+            do
+              [[ -r "${COMPLETION}" ]] && source "${COMPLETION}"
+            done
+          fi
+        fi
+
+        export LD_LIBRARY_PATH=$HOMEBREW_PREFIX/lib:$LD_LIBRARY_PATH
+        export MANPATH=$HOMEBREW_PREFIX/share/man:$MANPATH
         export GS_FONTPATH=$GS_FONTPATH:~/Library/Fonts
 
         ## Use GNU utils when available
-        export PATH=/usr/local/opt/coreutils/libexec/gnubin:$PATH
-        export PATH=/usr/local/opt/findutils/libexec/gnubin:$PATH
-        export PATH=/usr/local/opt/gawk/libexec/gnubin:$PATH
-        export PATH=/usr/local/opt/gnu-sed/libexec/gnubin:$PATH
-        export PATH=/usr/local/opt/gnu-tar/libexec/gnubin:$PATH
-        export PATH=/usr/local/opt/gnu-which/libexec/gnubin:$PATH
-        export PATH=/usr/local/opt/grep/libexec/gnubin:$PATH
-        export PATH=/usr/local/opt/make/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/findutils/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/gawk/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/gnu-tar/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/gnu-which/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/grep/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/make/libexec/gnubin:$PATH
 
-        export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:$MANPATH
-        export MANPATH=/usr/local/opt/findutils/libexec/gnuman:$MANPATH
-        export MANPATH=/usr/local/opt/gawk/libexec/gnuman:$MANPATH
-        export MANPATH=/usr/local/opt/gnu-sed/libexec/gnuman:$MANPATH
-        export MANPATH=/usr/local/opt/gnu-tar/libexec/gnuman:$MANPATH
-        export MANPATH=/usr/local/opt/gnu-which/libexec/gnuman:$MANPATH
-        export MANPATH=/usr/local/opt/grep/libexec/gnuman:$MANPATH
-        export MANPATH=/usr/local/opt/make/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/coreutils/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/findutils/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/gawk/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/gnu-tar/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/gnu-which/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/grep/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/make/libexec/gnuman:$MANPATH
 
         ## Use Homebrew python3 as default python
-        #export PATH=/usr/local/opt/python/libexec/bin:$PATH
+        #export PATH=$HOMEBREW_PREFIX/opt/python/libexec/bin:$PATH
 
         ## Add VisIt bin directory to PATH
         export PATH=/Applications/VisIt.app/Contents/Resources/bin:$PATH
@@ -385,14 +417,14 @@ elif [[ $FACILITY = "local" ]]; then
         export HOMEBREW_VERBOSE=1
 
         ## Open-MPI
-        export OMPI_DIR=/usr/local
+        export OMPI_DIR=$HOMEBREW_PREFIX
         export OMPI_ROOT=$OMPI_DIR
         export OMPI_CC=gcc-14
         export OMPI_CXX=g++-14
         export OMPI_FC=gfortran-14
 
         ## HDF5
-        export HDF5_DIR=/usr/local/Cellar/hdf5-parallel/1.14.5
+        export HDF5_DIR=$HOMEBREW_PREFIX/Cellar/hdf5-parallel/1.14.5
         export HDF5_ROOT=$HDF5_DIR
         export HDF5_INCLUDE_DIRS=$HDF5_DIR/include
         export HDF5_INCLUDE_OPTS=$HDF5_INCLUDE_DIRS
@@ -411,15 +443,15 @@ elif [[ $FACILITY = "local" ]]; then
         export ANDROID_HOME=/Users/$USER/Library/Android/sdk
         export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH
 
-        export BOOST_ROOT=/usr/local/Cellar/boost/1.76.0/include
-        export QTDIR=/usr/local/Cellar/qt@5/5.15.2
+        export BOOST_ROOT=$HOMEBREW_PREFIX/Cellar/boost/1.76.0/include
+        export QTDIR=$HOMEBREW_PREFIX/Cellar/qt@5/5.15.2
 
         export PATH=$QTDIR/bin:$PATH
 
         export CMAKE_MODULE_PATH=$QTDIR/lib/cmake
-        export CMAKE_C_COMPILER=gcc-13
-        export CMAKE_CXX_COMPILER=g++-13
-        export CMAKE_FC_COMPILER=gfortran-13
+        export CMAKE_C_COMPILER=gcc-14
+        export CMAKE_CXX_COMPILER=g++-14
+        export CMAKE_FC_COMPILER=gfortran-14
      fi
 fi
 
