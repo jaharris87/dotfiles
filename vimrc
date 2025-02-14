@@ -7,6 +7,9 @@ set nocompatible
 " This is actually a custom-version of zenburn
 colorscheme zenburn
 
+" The above colors scheme does not support true colors
+set notermguicolors
+
 " Turn on syntax highlighting
 if has("syntax")
     syntax on
