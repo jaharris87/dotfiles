@@ -338,21 +338,6 @@ elif [[ $FACILITY = "local" ]]; then
 
         if type brew &>/dev/null
         then
-          HOMEBREW_PREFIX="$(brew --prefix)"
-          if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]
-          then
-            source "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
-          else
-            for COMPLETION in "${HOMEBREW_PREFIX}/etc/bash_completion.d/"*
-            do
-              [[ -r "${COMPLETION}" ]] && source "${COMPLETION}"
-            done
-          fi
-        fi
-
-        if type brew &>/dev/null
-        then
-          HOMEBREW_PREFIX="$(brew --prefix)"
           if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]
           then
             source "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
@@ -424,7 +409,7 @@ elif [[ $FACILITY = "local" ]]; then
         export OMPI_FC=gfortran-14
 
         ## HDF5
-        export HDF5_DIR=$HOMEBREW_PREFIX/Cellar/hdf5-parallel/1.14.5
+        export HDF5_DIR=$HOMEBREW_PREFIX/Cellar/hdf5-parallel/1.14.6
         export HDF5_ROOT=$HDF5_DIR
         export HDF5_INCLUDE_DIRS=$HDF5_DIR/include
         export HDF5_INCLUDE_OPTS=$HDF5_INCLUDE_DIRS
