@@ -463,20 +463,20 @@ elif [[ $FACILITY = "local" ]]; then
         if [[ $HOST_SHORT = "etacar" ]]; then
 
           ## Open-MPI
-          export OMPI_DIR=$HOME/sw/etacar/gcc/11.1.0/openmpi-4.0.3
+          export OMPI_DIR=/usr/lib/x86_64-linux-gnu/openmpi
           export OMPI_ROOT=$OMPI_DIR
-          export PATH=$OMPI_DIR/bin:$PATH
+          #export PATH=$OMPI_DIR/bin:$PATH
 
           ## MPICH
           #export MPICH_DIR=/usr/lib/mpich
           #export MPICH_ROOT=$MPICH_DIR
 
           ## HDF5
-          export HDF5_DIR=$HOME/sw/etacar/gcc/11.1.0/hdf5-openmpi-1.12.2
+          export HDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/openmpi
           export HDF5_ROOT=$HDF5_DIR
           export HDF5_INCLUDE_DIRS=$HDF5_DIR/include
           export HDF5_INCLUDE_OPTS=$HDF5_INCLUDE_DIRS
-          export PATH=$HDF5_DIR/bin:$PATH
+          #export PATH=$HDF5_DIR/bin:$PATH
 
         fi
     fi
