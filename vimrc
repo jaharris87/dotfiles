@@ -7,6 +7,9 @@ set nocompatible
 " This is actually a custom-version of zenburn
 colorscheme zenburn
 
+" The above colors scheme does not support true colors
+set notermguicolors
+
 " Turn on syntax highlighting
 if has("syntax")
     syntax on
@@ -165,9 +168,18 @@ au! BufRead,BufNewFile controls_* set filetype=fortran
 au! BufRead,BufNewFile [mM]akefile.h* set filetype=make
 
 " Don't use fixed-line width syntax or pattern matching... ever
-"let b:fortran_fixed_source = 0
+let b:fortran_fixed_source = 0
 
 " Use backtick for escape
 ":imap ` <Esc>
 
 "let g:DiffUnit='Char'
+"let g:DiffPairVisible=2
+
+" Default to not read-only in vimdiff
+"set noro
+
+" ignore these files when completing names and in Ex
+set wildignore=.svn,CVS,.git,*.o,*.a,*.class,*.mo,*.la,*.so,*.obj,*.swp,*.jpg,*.png,*.xpm,*.gif,*.pdf,*.bak,*.beam
+" set of file name suffixes that will be given a lower priority when it comes to matching wildcards
+set suffixes+=.old,.bak,.backup,.tmp

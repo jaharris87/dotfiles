@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
 ## If not running interactively, don't do anything
 [[ $- = *i* ]] || return
 
@@ -23,6 +28,14 @@ else
     }
     export PS1="\[$bold$yellow\]\u@\h\[$reset\]: \[$bold$white\]\w\[$reset\]\$(parse_git_branch)> "
 fi
+
+if [[ -f $HOME/.git-completion.bash ]]; then
+    . $HOME/.git-completion.bash
+fi
+
+#if [[ -f $HOME/.vim-completion.bash ]]; then
+#    . $HOME/.vim-completion.bash
+#fi
 
 #export PS1="\[$bold$yellow\]\u@\h\[$reset\]: \[$bold$white\]\w\[$reset\]> "
 
@@ -65,17 +78,25 @@ export USER=$(whoami)
 export FQDN=$(hostname -f)
 
 ## Trim extras off HOSTNAME (e.g. -ext2, edison05, cori10)
-export HOST_SHORT="$(echo ${FQDN} | \
-  sed -e 's/\.\(olcf\|ccs\)\..*//' \
-      -e 's/[-]\?\(login\|ext\|batch\)[^\.]*[\.]\?//' \
-      -e 's/[-0-9]*$//')"
+if [[ ! -z ${LMOD_SYSTEM_NAME+x} ]]; then
+  export HOST_SHORT=${LMOD_SYSTEM_NAME}
+else
+  export HOST_SHORT="$(echo ${FQDN} | \
+      sed -e 's/\.\(olcf\|ccs\)\..*//' \
+          -e 's/[-]\?\(login\|ext\|batch\|[a-z][0-9]\+n[0-9]\+\)[^\.]*[\.]\?//' \
+          -e 's/[-0-9]*\([\.][^\.]\+\)\?$//' \
+          -e 's/\..*$//')"
+fi
 
 ## Get computing facility name (e.g. NERSC, OLCF, ALCF, NCSA)
 if [[ $FQDN = *"ornl.gov" || \
-      $HOST_SHORT = "summitdev" || \
       $HOST_SHORT = "lyra" ]]; then
     export FACILITY="OLCF"
-elif [[ $FQDN = *"nersc.gov" ]]; then
+elif [[ $FQDN = *"cm.cluster" || \
+        $FQDN = *"cray.com" ]]; then
+    export FACILITY="CRAY"
+elif [[ ! -z ${NERSC_HOST+x} ]]; then
+    HOST_SHORT=$NERSC_HOST
     export FACILITY="NERSC"
 elif [[ $FQDN = *"anl.gov" ]]; then
     export FACILITY="ALCF"
@@ -85,31 +106,35 @@ else
     export FACILITY="local"
 fi
 
-## Set default project ID
-if [[ $FACILITY = "OLCF" ]]; then
-    if [[ $HOST_SHORT = "ascent" ]]; then
-        export PROJID="gen109"
-    elif [[ $HOST_SHORT = "summit" ]]; then
-        export PROJID="ast136"
-    else
-        export PROJID="stf006"
-    fi
-    export PROJ_USERS=$(getent group $PROJID | sed 's/^.*://')
-elif [[ $FACILITY = "NERSC" ]]; then
-    export PROJID="chimera"
-    export PROJ_USERS=$(getent group $PROJID | sed 's/^.*://')
-elif [[ $FACILITY = "ALCF" ]]; then
-    export PROJID=""
-    export PROJ_USERS=""
-elif [[ $FACILITY = "NCSA" ]]; then
-    export PROJID="banp"
-    export PROJ_USERS=$(getent group PRAC_$PROJID | sed 's/^.*://')
-elif [[ $FACILITY = "NICS" ]]; then
-    export PROJID="UT-MEZZ-AACE"
-    export PROJ_USERS=""
-else
-    export PROJID=""
-    export PROJ_USERS=""
+## Set default project IDs
+if [[ ! "$(uname)" = "Darwin" ]]; then
+  export PROJIDS=$(groups | grep -o '\<[a-z]\+[0-9]\+\>')
+  if [[ $FACILITY = "OLCF" ]]; then
+      if [[ $HOST_SHORT = "ascent" ]]; then
+          export PROJID="gen109"
+      elif [[ $HOST_SHORT = "summit" ]]; then
+          export PROJID="ast203"
+      elif [[ $HOST_SHORT = "spock" || $HOST_SHORT = "borg" || $HOST_SHORT = "crusher" ]]; then
+          export PROJID="stf006"
+      elif [[ $HOST_SHORT = "frontier" ]]; then
+          export PROJID="ast137"
+      else
+          export PROJID="stf006"
+      fi
+  elif [[ $FACILITY = "CRAY" ]]; then
+      export PROJID=""
+  elif [[ $FACILITY = "NERSC" ]]; then
+      export PROJID="m1373"
+  elif [[ $FACILITY = "ALCF" ]]; then
+      export PROJID=""
+  else
+      export PROJID=""
+  fi
+  for PID in $PROJIDS; do
+      PID_UC=$(echo $PID | tr '[:lower:]' '[:upper:]')
+      export ${PID_UC}_USERS=$(getent group $PID | sed 's/^.*://')
+  done
+  export PROJ_USERS=$(getent group $PROJID | sed 's/^.*://')
 fi
 
 ## Load custom aliases
@@ -133,7 +158,10 @@ vertestresult=$?
 unset bashver vertest vertestresult
 
 ## Ignore duplicate history entries
-export HISTCONTROL=ignoredups
+#export HISTCONTROL=ignoredups
+
+## Ignore duplicate history entries AND entries beginning with a space
+export HISTCONTROL=ignoreboth
 
 ## Limit to number of commands saved in history
 export HISTFILESIZE=1000000
@@ -151,19 +179,32 @@ export LESS="--ignore-case --status-column --RAW-CONTROL-CHARS -F $LESS"
 [[ ! -z ${PE_ENV+x} ]] && export LC_PE_ENV=$(echo ${PE_ENV} | tr A-Z a-z)
 
 ## Number of processors on this node
-if [[ -f /proc/cpuinfo ]]; then
-    export NPROC=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
-    export NPROCS=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
-fi
+#if [[ -f /proc/cpuinfo ]]; then
+#    export NPROC=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
+#    export NPROCS=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
+#fi
 
 ## Set facility/machine specific environment variables
 if [[ $FACILITY = "OLCF" ]]; then
     ## Scratch directory environment variables for Summit/SummitDev are not yet created by default
-    if [[ -d /gpfs/alpine ]]; then
+    if [[ -d /lustre/orion ]]; then
+        ## Frontier
+        export MEMBERWORK=/lustre/orion/scratch/$USER
+        export PROJWORK=/lustre/orion/proj-shared
+        export WORLDWORK=/lustre/orion/world-shared
+        #export MEMBERWORK=/lustre/orion/$PROJID/scratch/$USER
+        #export PROJWORK=/lustre/orion/$PROJID/proj-shared/$USER
+        #export WORLDWORK=/lustre/orion/$PROJID/world-shared/$USER
+    elif [[ -d /gpfs/alpine2 ]]; then
         ## Summit, SummitDev, Peak, Rhea
-        export MEMBERWORK=/gpfs/alpine/scratch/$USER
-        export PROJWORK=/gpfs/alpine/proj-shared
-        export WORLDWORK=/gpfs/alpine/world-shared
+        export MEMBERWORK=/gpfs/alpine2/scratch/$USER
+        export PROJWORK=/gpfs/alpine2/proj-shared
+        export WORLDWORK=/gpfs/alpine2/world-shared
+    elif [[ -d /gpfs/alpinetds ]]; then
+        ## Ascent
+        export MEMBERWORK=/gpfs/alpinetds/scratch/$USER
+        export PROJWORK=/gpfs/alpinetds/proj-shared
+        export WORLDWORK=/gpfs/alpinetds/world-shared
     elif [[ -d /gpfs/wolf ]]; then
         ## Ascent
         export MEMBERWORK=/gpfs/wolf/scratch/$USER
@@ -175,20 +216,41 @@ if [[ $FACILITY = "OLCF" ]]; then
         export PROJWORK=$HOME
         export WORLDWORK=$HOME
     fi
-    [[ -d $MEMBERWORK/$PROJID ]] && export WORKDIR=$MEMBERWORK/$PROJID || export WORKDIR=$HOME
-    [[ -d /ccs/proj/$PROJID ]] && export PROJHOME=/ccs/proj/$PROJID || export PROJHOME=$PROJWORK
+    [[ -d $MEMBERWORK/$PROJID ]] && export WORKDIR=$MEMBERWORK/$PROJID || export WORKDIR=$MEMBERWORK/stf006
+
+    ## Project-specific directories
     [[ -d $PROJWORK/$PROJID/$USER ]] && export PROJWORKDIR=$PROJWORK/$PROJID/$USER || export PROJWORKDIR=$WORKDIR
+    [[ -d /ccs/proj/$PROJID ]] && export PROJHOME=/ccs/proj/$PROJID || export PROJHOME=/ccs/proj/stf006
     export HPSS_PROJDIR=/proj/$PROJID
+    for PID in $PROJIDS; do
+        PID_UC=$(echo $PID | tr '[:lower:]' '[:upper:]')
+        [[ -d $PROJWORK/$PID/$USER ]] && export ${PID_UC}_WORKDIR=$PROJWORK/${PID}/$USER || export ${PID_UC}_WORKDIR=$WORKDIR
+        [[ -d /ccs/proj/${PID} ]] && export ${PID_UC}_HOME=/ccs/proj/${PID} || export ${PID_UC}_HOME=$PROJHOME
+        export HPSS_${PID_UC}_DIR=/proj/$PID
+    done
+
     ## If system has Lmod ...
     if [[ ! -z ${LMOD_CMD+x} ]]; then
-      ## ... Add custom modules to path
-      [[ -d $WORLDWORK/$USER/modulefiles/$HOST_SHORT ]] && module use $WORLDWORK/$USER/modulefiles/$HOST_SHORT
-      [[ -d $PROJHOME/modulefiles/$HOST_SHORT ]] && module use $PROJHOME/modulefiles/$HOST_SHORT
-      [[ -d $HOME/modulefiles/$HOST_SHORT ]] && module use $HOME/modulefiles/$HOST_SHORT
-      ## Load newer git
-      module try-load git
-      ## Load newer subversion
-      module try-load subversion
+        ## ... Add custom modules to path
+        ## `module use` command will prefer whichever path was added most recently,
+        ## and we want the order of preference to be user > project > world
+        for PID in $PROJIDS; do
+            PID_UC=$(echo $PID | tr '[:lower:]' '[:upper:]')
+            PID_HOME=${PID_UC}_HOME
+            [[ -d $WORLDWORK/$PID/modulefiles/$HOST_SHORT ]] && module use $WORLDWORK/$PID/modulefiles/$HOST_SHORT
+        done
+        for PID in $PROJIDS; do
+            PID_UC=$(echo $PID | tr '[:lower:]' '[:upper:]')
+            PID_HOME=${PID_UC}_HOME
+            [[ -d /ccs/proj/${PID}/modulefiles/$HOST_SHORT ]] && module use /ccs/proj/${PID}/modulefiles/$HOST_SHORT
+        done
+        [[ -d $HOME/modulefiles/$HOST_SHORT ]] && module use $HOME/modulefiles/$HOST_SHORT
+        ## Load newer git
+        module try-load git
+        ## Load newer subversion
+        module try-load subversion
+        ## Load python
+        module try-load python
     fi
     ## Add manually built diffutils to paths
     if [[ -d $HOME/sw/$HOST_SHORT/diffutils ]]; then
@@ -217,22 +279,51 @@ if [[ $FACILITY = "OLCF" ]]; then
         export MANPATH=$HOME/sw/$HOST_SHORT/screen/share/man:$MANPATH
         export INFOPATH=$HOME/sw/$HOST_SHORT/screen/share/info:$MANPATH
     fi
-elif [[ $FACILITY = "NERSC" ]]; then
-    export WORKDIR=$CSCRATCH
-    export PROJHOME=/project/projectdirs/$PROJID
+    ## Default machine for weaklib/thornado
+    export WEAKLIB_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
+    export THORNADO_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
+elif [[ $FACILITY = "CRAY" ]]; then
+    export WORKDIR=$HOME
+    export PROJHOME=$HOME
     export PROJWORKDIR=$WORKDIR
-    export HPSS_PROJDIR=/home/projects/$PROJID
-    ## KNL by default
-    if [[ $NERSC_HOST = "cori" ]]; then
-        module swap PrgEnv-$LC_PE_ENV PrgEnv-intel
-        module swap craype-$CRAY_CPU_TARGET craype-mic-knl
-    elif [[ $NERSC_HOST = "edison" ]]; then
-        module swap PrgEnv-$LC_PE_ENV PrgEnv-intel
+    export HPSS_PROJDIR=$PROJHOME
+    #module load PrgEnv-cray
+    if [[ ! -z ${LMOD_CMD+x} ]]; then
+      ## ... Add custom modules to path
+      [[ -d $HOME/modulefiles/$HOST_SHORT ]] && module use $HOME/modulefiles/$HOST_SHORT
     fi
-    ## Load newer subversion
-    module load subversion
-    ## Unlaod darhsan
-    module unload darshan
+    export WEAKLIB_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
+    export THORNADO_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
+elif [[ $FACILITY = "NERSC" ]]; then
+    export WORKDIR=$SCRATCH
+    export PROJHOME=$CFS/$PROJID
+    export PROJWORKDIR=$CFS/$PROJID/$USER
+    export HPSS_PROJDIR=/home/projects/$PROJID
+
+    shopt -u progcomp
+
+    ### KNL by default
+    #if [[ $NERSC_HOST = "cori" ]]; then
+    #    module swap PrgEnv-$LC_PE_ENV PrgEnv-intel
+    #    module swap craype-$CRAY_CPU_TARGET craype-mic-knl
+    #fi
+    ### Load newer subversion
+    #module load subversion
+    ### Unlaod darhsan
+    #module unload darshan
+
+    ## If system has Lmod ...
+    if [[ ! -z ${LMOD_CMD+x} ]]; then
+      ## ... Add custom modules to path
+      [[ -d /global/common/software/m1373/modulefiles/$HOST_SHORT ]] && module use /global/common/software/m1373/modulefiles/$HOST_SHORT
+      [[ -d /global/common/software/m3961/modulefiles/$HOST_SHORT ]] && module use /global/common/software/m3961/modulefiles/$HOST_SHORT
+      [[ -d /global/common/software/chimera/modulefiles/$HOST_SHORT ]] && module use /global/common/software/chimera/modulefiles/$HOST_SHORT
+      [[ -d $HOME/modulefiles/$HOST_SHORT ]] && module use $HOME/modulefiles/$HOST_SHORT
+      ## Load newer git
+      module try-load git
+      ## Load newer subversion
+      module try-load subversion
+    fi
 elif [[ $FACILITY = "local" ]]; then
     export WORKDIR=$HOME
     export PROJHOME=$HOME
@@ -241,13 +332,48 @@ elif [[ $FACILITY = "local" ]]; then
 
     ## Mac OS X
     if [[ "$(uname)" = "Darwin" ]]; then
-        export LD_LIBRARY_PATH=/opt/local/lib:$LD_LIBRARY_PATH
-        export MANPATH=/opt/local/share/man:$MANPATH
+
+        [[ -z ${HOMEBREW_PREFIX+x} ]] && export HOMEBREW_PREFIX="$(brew --prefix)"
+        [[ -r "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh" ]] && . "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
+
+        if type brew &>/dev/null
+        then
+          if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]
+          then
+            source "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
+          else
+            for COMPLETION in "${HOMEBREW_PREFIX}/etc/bash_completion.d/"*
+            do
+              [[ -r "${COMPLETION}" ]] && source "${COMPLETION}"
+            done
+          fi
+        fi
+
+        export LD_LIBRARY_PATH=$HOMEBREW_PREFIX/lib:$LD_LIBRARY_PATH
+        export MANPATH=$HOMEBREW_PREFIX/share/man:$MANPATH
         export GS_FONTPATH=$GS_FONTPATH:~/Library/Fonts
 
         ## Use GNU utils when available
-        export PATH=/opt/local/libexec/gnubin:$PATH
-        #export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:$MANPATH
+        export PATH=$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/findutils/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/gawk/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/gnu-tar/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/gnu-which/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/grep/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/make/libexec/gnubin:$PATH
+
+        export MANPATH=$HOMEBREW_PREFIX/opt/coreutils/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/findutils/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/gawk/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/gnu-tar/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/gnu-which/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/grep/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/make/libexec/gnuman:$MANPATH
+
+        ## Use Homebrew python3 as default python
+        #export PATH=$HOMEBREW_PREFIX/opt/python/libexec/bin:$PATH
 
         ## Add VisIt bin directory to PATH
         export PATH=/Applications/VisIt.app/Contents/Resources/bin:$PATH
@@ -268,27 +394,49 @@ elif [[ $FACILITY = "local" ]]; then
         #export FC=gfortran-9
 
         ## Homebrew compilers
-        export HOMEBREW_CC=gcc-9
-        export HOMEBREW_CXX=g++-9
-        export HOMEBREW_CPP=cpp-9
-        export HOMEBREW_CXXCPP=cpp-9
-        export HOMEBREW_FC=gfortran-9
-        #export HOMEBREW_VERBOSE=1
+        export HOMEBREW_CC=gcc-14
+        export HOMEBREW_CXX=g++-14
+        export HOMEBREW_CPP=cpp-14
+        export HOMEBREW_CXXCPP=cpp-14
+        export HOMEBREW_FC=gfortran-14
+        export HOMEBREW_VERBOSE=1
 
         ## Open-MPI
-        export OMPI_DIR=/opt/local
+        export OMPI_DIR=$HOMEBREW_PREFIX
         export OMPI_ROOT=$OMPI_DIR
+        export OMPI_CC=gcc-14
+        export OMPI_CXX=g++-14
+        export OMPI_FC=gfortran-14
 
         ## HDF5
-        export HDF5_DIR=/opt/local
+        export HDF5_DIR=$HOMEBREW_PREFIX/Cellar/hdf5-parallel/1.14.6
         export HDF5_ROOT=$HDF5_DIR
         export HDF5_INCLUDE_DIRS=$HDF5_DIR/include
         export HDF5_INCLUDE_OPTS=$HDF5_INCLUDE_DIRS
+        export PATH=$HDF5_DIR/bin:$PATH
 
         ## Pardiso
         export PARDISO_DIR=/usr/local/pardiso
         export PARDISO_LIC_PATH=$PARDISO_DIR
         export PARDISOLICMESSAGE=1
+
+        ## Default machine for weaklib/thornado
+        export WEAKLIB_MACHINE=mac_gnu
+        export THORNADO_MACHINE=mac_gnu
+
+        ## Android SDK
+        export ANDROID_HOME=/Users/$USER/Library/Android/sdk
+        export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH
+
+        export BOOST_ROOT=$HOMEBREW_PREFIX/Cellar/boost/1.76.0/include
+        export QTDIR=$HOMEBREW_PREFIX/Cellar/qt@5/5.15.2
+
+        export PATH=$QTDIR/bin:$PATH
+
+        export CMAKE_MODULE_PATH=$QTDIR/lib/cmake
+        export CMAKE_C_COMPILER=gcc-14
+        export CMAKE_CXX_COMPILER=g++-14
+        export CMAKE_FC_COMPILER=gfortran-14
      elif [[ "$(uname)" = "Linux" ]]; then
 
         ## Add VisIt bin directory to PATH
@@ -331,8 +479,12 @@ elif [[ $FACILITY = "local" ]]; then
           export PATH=$HDF5_DIR/bin:$PATH
 
         fi
+    fi
+fi
 
-     fi
+## Add local bin to path
+if [[ -d $HOME/.local/bin ]]; then
+    export PATH=$HOME/.local/bin:$PATH
 fi
 
 ## Add local directories to environment
@@ -345,17 +497,16 @@ export LD_LIBRARY_PATH=$HOME/lib:$LD_LIBRARY_PATH
 export CHIMERA=$HOME/chimera/trunk/Chimera
 export DCHIMERA=$HOME/chimera/tags/D-production
 export FCHIMERA=$HOME/chimera/tags/F-production
+export GCHIMERA=$HOME/chimera/tags/G-production
 export TRACER_READER=$HOME/chimera/trunk/Tools/tracer_reader
 export INITIAL_MODELS=$HOME/chimera/trunk/Initial_Models
 export MODEL_GENERATOR=$INITIAL_MODELS/Model_Generator
 
 export WEAKLIB_DIR=$HOME/weaklib
 export WEAKLIB_HOME=$WEAKLIB_DIR
-export WEAKLIB_MACHINE=${HOST_SHORT}_xl
 
 export THORNADO_DIR=$HOME/thornado
 export THORNADO_HOME=$THORNADO_DIR
-export THORNADO_MACHINE=${HOST_SHORT}_xl
 
 export AMREX_ROOT=$HOME/AMReX-Codes
 export AMREX_DIR=$AMREX_ROOT/amrex
@@ -370,6 +521,7 @@ export MAESTRO_HOME=$MAESTRO_DIR
 export STARKILLER_ROOT=$HOME/starkiller-astro
 export MICROPHYSICS_DIR=$STARKILLER_ROOT/Microphysics
 export MICROPHYSICS_HOME=$MICROPHYSICS_DIR
+
 export XNET_DIR=$STARKILLER_ROOT/XNet
 export XNET_HOME=$XNET_DIR
 export XNET=$XNET_DIR
@@ -379,27 +531,40 @@ export BOXLIB_DIR=$BOXLIB_ROOT/BoxLib
 export BOXLIB_HOME=$BOXLIB_ROOT/BoxLib
 #export BOXLIB_USE_MPI_WRAPPERS=1
 
-[[ -d $PROJHOME/$USER ]] && export FLASH_ROOT=$PROJHOME/$USER || export FLASH_ROOT=$HOME
+[[ -d $AST136_WORKDIR ]] && export WEAKLIB_TABLES=$AST136_WORKDIR/weaklib-tables || export WEAKLIB_TABLES=$PROJWORKDIR/weaklib-tables
+
+[[ -d $AST136_HOME/$USER ]] && export FLASH_ROOT=$AST136_HOME/$USER || export FLASH_ROOT=$PROJHOME/$USER
+[[ -d $AST136_WORKDIR ]] && export FLASH_RUN_ROOT=$AST136_WORKDIR || export FLASH_RUN_ROOT=$PROJWORKDIR
+[[ ! -d $FLASH_ROOT ]] && export FLASH_ROOT=$HOME
+[[ ! -d $FLASH_RUN_ROOT ]] && export FLASH_RUN_ROOT=$HOME
+
 export FLASHOR=$FLASH_ROOT/FLASHOR
+export FLASHOR_RUN=$FLASH_RUN_ROOT/FLASHOR_run
+export XNET_FLASHOR=$FLASHOR/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
+export HELMHOLTZ_FLASHOR=$FLASHOR/source/physics/Eos/EosMain/Helmholtz
+
 export FLASH5=$FLASH_ROOT/FLASH5
-export FLASH_DIR=$FLASH5
+export FLASH5_RUN=$FLASH_RUN_ROOT/FLASH5_run
+export XNET_FLASH5=$FLASH5/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
+export HELMHOLTZ_FLASH5=$FLASH5/source/physics/Eos/EosMain/Helmholtz
+
+export FLASHX=$FLASH_ROOT/Flash-X
+export FLASHX_RUN=$FLASH_RUN_ROOT/Flash-X_run
+
+export FLASH_DIR=$FLASHX
+export FLASH_RUN=$FLASHX_RUN
 export XNET_FLASH=$FLASH_DIR/source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet
 export HELMHOLTZ_FLASH=$FLASH_DIR/source/physics/Eos/EosMain/Helmholtz
 export WEAKLIB_FLASH=$FLASH_DIR/source/physics/Eos/EosMain/WeakLib
 export RADTRANS_FLASH=$FLASH_DIR/source/physics/RadTrans/RadTransMain
+export THORNADO_FLASH=$FLASH_DIR/source/physics/RadTrans/RadTransMain/TwoMoment/Thornado
+export SPARK_FLASH=$FLASH_DIR/source/physics/Hydro/HydroMain/Spark
 export SIM_FLASH=$FLASH_DIR/source/Simulation/SimulationMain
 
-export FLASH_RUN=$PROJWORKDIR/FLASH5_run
-
-if [[ -d $HOME/magma ]]; then
-    export MAGMA_DIR=$HOME/magma
-    export MAGMA_ROOT=$MAGMA_DIR
-fi
-
-if [[ -d $HOME/hypre ]]; then
-    export HYPRE_DIR=$HOME/hypre
-    export HYPRE_ROOT=$HYPRE_DIR
-fi
+[[ -d $HOME/magma ]] && export MAGMA_DIR=$HOME/magma
+[[ -d $HOME/hypre ]] && export HYPRE_DIR=$HOME/hypre
+[[ ! -z ${MAGMA_DIR} ]] && export MAGMA_ROOT=$MAGMA_DIR
+[[ ! -z ${HYPRE_DIR} ]] && export HYPRE_ROOT=$HYPRE_DIR
 
 export HELMHOLTZ_PATH=$HOME/helmholtz
 
