@@ -2,7 +2,7 @@
 
 # Source global definitions
 if [ -f /etc/bashrc ]; then
-	. /etc/bashrc
+    . /etc/bashrc
 fi
 
 ## If not running interactively, don't do anything
@@ -33,14 +33,11 @@ if [[ -f $HOME/.git-completion.bash ]]; then
     . $HOME/.git-completion.bash
 fi
 
-if [[ -f $HOME/.vim-completion.bash ]]; then
-    . $HOME/.vim-completion.bash
-fi
+#if [[ -f $HOME/.vim-completion.bash ]]; then
+#    . $HOME/.vim-completion.bash
+#fi
 
 #export PS1="\[$bold$yellow\]\u@\h\[$reset\]: \[$bold$white\]\w\[$reset\]> "
-
-## Export commands to history as they are executed (allows shared history between screen sessions)
-#export PROMPT_COMMAND="history -a; history -c; history -r; ${PROMPT_COMMAND}"
 
 ## Compare version numbers
 ## source: https://stackoverflow.com/questions/4023830/how-to-compare-two-strings-in-dot-separated-version-format-in-bash
@@ -69,6 +66,11 @@ vercomp () {
         fi
     done
     return 0
+}
+
+# Find process and show info (using standard ps and grep)
+psgrep() {
+    ps aux | grep -v grep | grep "$1"
 }
 
 ## Who am I?
@@ -157,15 +159,32 @@ vertestresult=$?
 [[ $vertestresult -lt 2 ]] && shopt -s direxpand
 unset bashver vertest vertestresult
 
+## ===== BASH HISTORY PRESERVATION =====
+## Preserve history across sessions and unexpected crashes
+
 ## Ignore duplicate history entries
 #export HISTCONTROL=ignoredups
 
 ## Ignore duplicate history entries AND entries beginning with a space
 export HISTCONTROL=ignoreboth
 
+## Add timestamps to history
+export HISTTIMEFORMAT='%F %T '
+
 ## Limit to number of commands saved in history
 export HISTFILESIZE=1000000
 export HISTSIZE=1000000
+
+# Ensure history is appended, not overwritten
+shopt -s histappend
+
+## Write history immediately after each command (preserved even if session dies)
+export PROMPT_COMMAND="history -a; ${PROMPT_COMMAND}"
+
+## Instant shared history between screen sessions (reloads history); a bit overwhelming
+#export PROMPT_COMMAND="history -a; history -c; history -r; ${PROMPT_COMMAND}"
+
+## =====================================
 
 ## Set default editor
 export EDITOR=vim
@@ -332,31 +351,48 @@ elif [[ $FACILITY = "local" ]]; then
 
     ## Mac OS X
     if [[ "$(uname)" = "Darwin" ]]; then
-        export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-        export MANPATH=/usr/local/share/man:$MANPATH
+
+        [[ -z ${HOMEBREW_PREFIX+x} ]] && export HOMEBREW_PREFIX="$(brew --prefix)"
+        [[ -r "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh" ]] && . "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
+
+        if type brew &>/dev/null
+        then
+          if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]
+          then
+            source "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
+          else
+            for COMPLETION in "${HOMEBREW_PREFIX}/etc/bash_completion.d/"*
+            do
+              [[ -r "${COMPLETION}" ]] && source "${COMPLETION}"
+            done
+          fi
+        fi
+
+        export LD_LIBRARY_PATH=$HOMEBREW_PREFIX/lib:$LD_LIBRARY_PATH
+        export MANPATH=$HOMEBREW_PREFIX/share/man:$MANPATH
         export GS_FONTPATH=$GS_FONTPATH:~/Library/Fonts
 
         ## Use GNU utils when available
-        export PATH=/usr/local/opt/coreutils/libexec/gnubin:$PATH
-        export PATH=/usr/local/opt/findutils/libexec/gnubin:$PATH
-        export PATH=/usr/local/opt/gawk/libexec/gnubin:$PATH
-        export PATH=/usr/local/opt/gnu-sed/libexec/gnubin:$PATH
-        export PATH=/usr/local/opt/gnu-tar/libexec/gnubin:$PATH
-        export PATH=/usr/local/opt/gnu-which/libexec/gnubin:$PATH
-        export PATH=/usr/local/opt/grep/libexec/gnubin:$PATH
-        export PATH=/usr/local/opt/make/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/findutils/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/gawk/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/gnu-tar/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/gnu-which/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/grep/libexec/gnubin:$PATH
+        export PATH=$HOMEBREW_PREFIX/opt/make/libexec/gnubin:$PATH
 
-        export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:$MANPATH
-        export MANPATH=/usr/local/opt/findutils/libexec/gnuman:$MANPATH
-        export MANPATH=/usr/local/opt/gawk/libexec/gnuman:$MANPATH
-        export MANPATH=/usr/local/opt/gnu-sed/libexec/gnuman:$MANPATH
-        export MANPATH=/usr/local/opt/gnu-tar/libexec/gnuman:$MANPATH
-        export MANPATH=/usr/local/opt/gnu-which/libexec/gnuman:$MANPATH
-        export MANPATH=/usr/local/opt/grep/libexec/gnuman:$MANPATH
-        export MANPATH=/usr/local/opt/make/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/coreutils/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/findutils/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/gawk/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/gnu-tar/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/gnu-which/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/grep/libexec/gnuman:$MANPATH
+        export MANPATH=$HOMEBREW_PREFIX/opt/make/libexec/gnuman:$MANPATH
 
         ## Use Homebrew python3 as default python
-        #export PATH=/usr/local/opt/python/libexec/bin:$PATH
+        #export PATH=$HOMEBREW_PREFIX/opt/python/libexec/bin:$PATH
 
         ## Add VisIt bin directory to PATH
         export PATH=/Applications/VisIt.app/Contents/Resources/bin:$PATH
@@ -377,22 +413,22 @@ elif [[ $FACILITY = "local" ]]; then
         #export FC=gfortran-9
 
         ## Homebrew compilers
-        export HOMEBREW_CC=gcc-13
-        export HOMEBREW_CXX=g++-13
-        export HOMEBREW_CPP=cpp-13
-        export HOMEBREW_CXXCPP=cpp-13
-        export HOMEBREW_FC=gfortran-13
+        export HOMEBREW_CC=gcc-15
+        export HOMEBREW_CXX=g++-15
+        export HOMEBREW_CPP=cpp-15
+        export HOMEBREW_CXXCPP=cpp-15
+        export HOMEBREW_FC=gfortran-15
         export HOMEBREW_VERBOSE=1
 
         ## Open-MPI
-        export OMPI_DIR=/usr/local
+        export OMPI_DIR=$HOMEBREW_PREFIX
         export OMPI_ROOT=$OMPI_DIR
-        export OMPI_CC=gcc-13
-        export OMPI_CXX=g++-13
-        export OMPI_FC=gfortran-13
+        export OMPI_CC=gcc-15
+        export OMPI_CXX=g++-15
+        export OMPI_FC=gfortran-15
 
         ## HDF5
-        export HDF5_DIR=/usr/local/Cellar/hdf5-parallel/1.14.0
+        export HDF5_DIR=$HOMEBREW_PREFIX/Cellar/hdf5-mpi/1.14.6
         export HDF5_ROOT=$HDF5_DIR
         export HDF5_INCLUDE_DIRS=$HDF5_DIR/include
         export HDF5_INCLUDE_OPTS=$HDF5_INCLUDE_DIRS
@@ -405,22 +441,64 @@ elif [[ $FACILITY = "local" ]]; then
 
         ## Default machine for weaklib/thornado
         export WEAKLIB_MACHINE=mac_gnu
-        export THORNADO_MACHINE=mac_gnu
+        export THORNADO_MACHINE=jaharris
 
         ## Android SDK
         export ANDROID_HOME=/Users/$USER/Library/Android/sdk
         export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH
 
-        export BOOST_ROOT=/usr/local/Cellar/boost/1.76.0/include
-        export QTDIR=/usr/local/Cellar/qt@5/5.15.2
+        export BOOST_ROOT=$HOMEBREW_PREFIX/Cellar/boost/1.76.0/include
+        export QTDIR=$HOMEBREW_PREFIX/Cellar/qt@5/5.15.2
 
         export PATH=$QTDIR/bin:$PATH
 
         export CMAKE_MODULE_PATH=$QTDIR/lib/cmake
-        export CMAKE_C_COMPILER=gcc-13
-        export CMAKE_CXX_COMPILER=g++-13
-        export CMAKE_FC_COMPILER=gfortran-13
-     fi
+        export CMAKE_C_COMPILER=gcc-15
+        export CMAKE_CXX_COMPILER=g++-15
+        export CMAKE_FC_COMPILER=gfortran-15
+     elif [[ "$(uname)" = "Linux" ]]; then
+
+        ## Add VisIt bin directory to PATH
+        export PATH=/usr/local/visit/bin:$PATH
+
+        ## Add Spack to PATH
+        #export SPACK_ROOT=/home/hrh/spack
+        #. $SPACK_ROOT/share/spack/setup-env.sh
+
+        ## Add PGI to PATH
+        export PGI=/opt/pgi
+        export PATH=$PGI/linux86-64/19.10/bin:$PATH
+        export LD_LIBRARY_PATH=$PGI/linux86-64/19.10/lib:$LD_LIBRARY_PATH
+        export MANPATH=$PGI/linux86-64/19.10/man:$MANPATH
+        export LM_LICENSE_FILE=$PGI/license.dat:$LM_LICENSE_FILE
+
+        ## Add Intel to PATH
+        #export INTEL_PATH=/opt/intel/compilers_and_libraries_2020/linux
+        ##export PATH=$INTEL_PATH/bin/intel64:$PATH
+        ##export MANPATH=$MANPATH:$INTEL_PATH/man/common
+        ##export MKLROOT=$INTEL_PATH/mkl
+        #. $INTEL_PATH/bin/compilervars.sh intel64
+
+        if [[ $HOST_SHORT = "etacar" ]]; then
+
+          ## Open-MPI
+          export OMPI_DIR=/usr/lib/x86_64-linux-gnu/openmpi
+          export OMPI_ROOT=$OMPI_DIR
+          #export PATH=$OMPI_DIR/bin:$PATH
+
+          ## MPICH
+          #export MPICH_DIR=/usr/lib/mpich
+          #export MPICH_ROOT=$MPICH_DIR
+
+          ## HDF5
+          export HDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/openmpi
+          export HDF5_ROOT=$HDF5_DIR
+          export HDF5_INCLUDE_DIRS=$HDF5_DIR/include
+          export HDF5_INCLUDE_OPTS=$HDF5_INCLUDE_DIRS
+          #export PATH=$HDF5_DIR/bin:$PATH
+
+        fi
+    fi
 fi
 
 ## Add local bin to path
@@ -438,6 +516,7 @@ export LD_LIBRARY_PATH=$HOME/lib:$LD_LIBRARY_PATH
 export CHIMERA=$HOME/chimera/trunk/Chimera
 export DCHIMERA=$HOME/chimera/tags/D-production
 export FCHIMERA=$HOME/chimera/tags/F-production
+export GCHIMERA=$HOME/chimera/tags/G-production
 export TRACER_READER=$HOME/chimera/trunk/Tools/tracer_reader
 export INITIAL_MODELS=$HOME/chimera/trunk/Initial_Models
 export MODEL_GENERATOR=$INITIAL_MODELS/Model_Generator
