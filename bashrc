@@ -2,7 +2,7 @@
 
 # Source global definitions
 if [ -f /etc/bashrc ]; then
-	. /etc/bashrc
+    . /etc/bashrc
 fi
 
 ## If not running interactively, don't do anything
@@ -408,22 +408,22 @@ elif [[ $FACILITY = "local" ]]; then
         #export FC=gfortran-9
 
         ## Homebrew compilers
-        export HOMEBREW_CC=gcc-14
-        export HOMEBREW_CXX=g++-14
-        export HOMEBREW_CPP=cpp-14
-        export HOMEBREW_CXXCPP=cpp-14
-        export HOMEBREW_FC=gfortran-14
+        export HOMEBREW_CC=gcc-15
+        export HOMEBREW_CXX=g++-15
+        export HOMEBREW_CPP=cpp-15
+        export HOMEBREW_CXXCPP=cpp-15
+        export HOMEBREW_FC=gfortran-15
         export HOMEBREW_VERBOSE=1
 
         ## Open-MPI
         export OMPI_DIR=$HOMEBREW_PREFIX
         export OMPI_ROOT=$OMPI_DIR
-        export OMPI_CC=gcc-14
-        export OMPI_CXX=g++-14
-        export OMPI_FC=gfortran-14
+        export OMPI_CC=gcc-15
+        export OMPI_CXX=g++-15
+        export OMPI_FC=gfortran-15
 
         ## HDF5
-        export HDF5_DIR=$HOMEBREW_PREFIX/Cellar/hdf5-parallel/1.14.6
+        export HDF5_DIR=$HOMEBREW_PREFIX/Cellar/hdf5-mpi/1.14.6
         export HDF5_ROOT=$HDF5_DIR
         export HDF5_INCLUDE_DIRS=$HDF5_DIR/include
         export HDF5_INCLUDE_OPTS=$HDF5_INCLUDE_DIRS
@@ -436,7 +436,7 @@ elif [[ $FACILITY = "local" ]]; then
 
         ## Default machine for weaklib/thornado
         export WEAKLIB_MACHINE=mac_gnu
-        export THORNADO_MACHINE=mac_gnu
+        export THORNADO_MACHINE=jaharris
 
         ## Android SDK
         export ANDROID_HOME=/Users/$USER/Library/Android/sdk
@@ -448,9 +448,9 @@ elif [[ $FACILITY = "local" ]]; then
         export PATH=$QTDIR/bin:$PATH
 
         export CMAKE_MODULE_PATH=$QTDIR/lib/cmake
-        export CMAKE_C_COMPILER=gcc-14
-        export CMAKE_CXX_COMPILER=g++-14
-        export CMAKE_FC_COMPILER=gfortran-14
+        export CMAKE_C_COMPILER=gcc-15
+        export CMAKE_CXX_COMPILER=g++-15
+        export CMAKE_FC_COMPILER=gfortran-15
      elif [[ "$(uname)" = "Linux" ]]; then
 
         ## Add VisIt bin directory to PATH
