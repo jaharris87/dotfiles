@@ -68,6 +68,11 @@ vercomp () {
     return 0
 }
 
+# Find process and show info (using standard ps and grep)
+psgrep() {
+    ps aux | grep -v grep | grep "$1"
+}
+
 ## Who am I?
 export USER=$(whoami)
 
