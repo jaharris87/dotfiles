@@ -110,9 +110,9 @@ elif [ $HOST_SHORT == "poplar" -o $HOST_SHORT == "tulip" -o $HOST_SHORT == "birc
 elif [ ! -z ${NERSC_HOST+x} ]; then
 
     ## Show only jobs for $USER
-    alias sqsu="sqs -u $USER"
+    alias squ="sqs -u $USER"
     ## Show only jobs for other users in group
-    alias sqsg="sqs -u $PROJ_USERS"
+    alias sqg="sqs -u $PROJ_USERS"
 
     ## Launch interactive job
     if [ $HOST_SHORT == "edison" ]; then
