@@ -169,6 +169,7 @@ au! BufRead,BufNewFile [mM]akefile.h* set filetype=make
 
 " Don't use fixed-line width syntax or pattern matching... ever
 let b:fortran_fixed_source = 0
+nmap <S-F> :set syntax=fortran<CR>:let b:fortran_fixed_source=!b:fortran_fixed_source<CR>:set syntax=text<CR>:set syntax=fortran<CR>
 
 " Use backtick for escape
 ":imap ` <Esc>
