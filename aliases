@@ -61,7 +61,8 @@ if [ $HOST_SHORT == "summit" -o $HOST_SHORT == "summitdev" -o $HOST_SHORT == "as
 elif [ $HOST_SHORT == "spock" -o $HOST_SHORT == "borg" -o $HOST_SHORT == "crusher" -o $HOST_SHORT == "frontier" ]; then
 
     ## squeue wrapper (from NERSC)
-    alias sqs="squeue -o \"%16i %2t %9u %7a %12j  %5D %.10l %.10M   %20V %15q %20S %14f %15R\""
+    #alias sqs="squeue -o \"%16i %2t %9u %7a %12j  %5D %.10l %.10M   %20V %15q %20S %14f %15R\""
+    alias sqs="squeue -o \"%8i %9u %7a %.5D %.10M %.10l %.10L  %9P %6q %.20V %.8Q  %2t  %j\""
 
     ## Show only jobs for $USER
     alias squ="sqs -u $USER"
@@ -80,6 +81,12 @@ elif [ $HOST_SHORT == "spock" -o $HOST_SHORT == "borg" -o $HOST_SHORT == "crushe
     ## Detailed node states
     alias snodes="sinfo -O PartitionName:12,StateComplete:50,Nodes:10,Reason:90 -S +P,+E,+t"
     alias savail="sinfo -O PartitionName:12,Nodes:10,StateComplete:50 -S +P,+E,+t -t alloc,idle"
+
+    ## Output format for sacct
+    export SACCT_FORMAT="JobID%10,State%15,User%9,Account%7,JobName%20,NNodes%5,TimeLimit%-10,Elapsed%-10,Submit%20,Partition%10,QOS%10,Start%20,Constraints%14,Reason%15"
+
+    ## Past job info
+    alias sshow_old="sacct -X -j"
 
 ## SLURM aliases for CRAY CoE machines
 elif [ $HOST_SHORT == "poplar" -o $HOST_SHORT == "tulip" -o $HOST_SHORT == "birch" ]; then
