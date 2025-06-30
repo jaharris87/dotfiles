@@ -39,9 +39,6 @@ fi
 
 #export PS1="\[$bold$yellow\]\u@\h\[$reset\]: \[$bold$white\]\w\[$reset\]> "
 
-## Export commands to history as they are executed (allows shared history between screen sessions)
-#export PROMPT_COMMAND="history -a; history -c; history -r; ${PROMPT_COMMAND}"
-
 ## Compare version numbers
 ## source: https://stackoverflow.com/questions/4023830/how-to-compare-two-strings-in-dot-separated-version-format-in-bash
 ## question author: https://askubuntu.com/users/235/jorge-castro
@@ -157,15 +154,32 @@ vertestresult=$?
 [[ $vertestresult -lt 2 ]] && shopt -s direxpand
 unset bashver vertest vertestresult
 
+## ===== BASH HISTORY PRESERVATION =====
+## Preserve history across sessions and unexpected crashes
+
 ## Ignore duplicate history entries
 #export HISTCONTROL=ignoredups
 
 ## Ignore duplicate history entries AND entries beginning with a space
 export HISTCONTROL=ignoreboth
 
+## Add timestamps to history
+export HISTTIMEFORMAT='%F %T '
+
 ## Limit to number of commands saved in history
 export HISTFILESIZE=1000000
 export HISTSIZE=1000000
+
+# Ensure history is appended, not overwritten
+shopt -s histappend
+
+## Write history immediately after each command (preserved even if session dies)
+export PROMPT_COMMAND="history -a; ${PROMPT_COMMAND}"
+
+## Instant shared history between screen sessions (reloads history); a bit overwhelming
+#export PROMPT_COMMAND="history -a; history -c; history -r; ${PROMPT_COMMAND}"
+
+## =====================================
 
 ## Set default editor
 export EDITOR=vim
