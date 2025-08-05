@@ -3,6 +3,7 @@ vim/bundle/*
 vim/cache/*
 vim/swaps/*
 vim/undo/*
+vim/.netrwhist
 
 # exceptions
 !.gitkeep
