@@ -15,8 +15,6 @@ alias grep="grep --colour=auto"
 alias ls="ls --color=auto -v -h -N -T 0 --group-directories-first"
 # List files in list format, omit project name
 alias lsl="ls -o"
-# Show hidden files
-alias ls.="ls -od .*"
 # Show folders
 alias lsd="ls -oUd */"
 # Show everything
@@ -32,6 +30,12 @@ vertest=$(vercomp $diffver 3.4)
 vertestresult=$?
 if [ $vertestresult -lt 2 ]; then
     alias diff="diff --color=auto"
+fi
+
+## If using VSCode, set vim and vi to open files in VSCode
+if [ $TERM_PROGRAM = "vscode" ]; then
+    alias vim="code"
+    alias vi="code"
 fi
 
 ## Queue management (LSF for Summit, SLURM for NERSC machines, MOAB for other OLCF machines)
