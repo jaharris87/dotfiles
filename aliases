@@ -33,9 +33,11 @@ if [ $vertestresult -lt 2 ]; then
 fi
 
 ## If using VSCode, set vim and vi to open files in VSCode
-if [ $TERM_PROGRAM = "vscode" ]; then
-    alias vim="code"
-    alias vi="code"
+if [[ ! -z ${TERM_PROGRAM+x} ]]; then
+    if [ $TERM_PROGRAM == "vscode" ]; then
+        alias vim="code"
+        alias vi="code"
+    fi
 fi
 
 ## Queue management (LSF for Summit, SLURM for NERSC machines, MOAB for other OLCF machines)
