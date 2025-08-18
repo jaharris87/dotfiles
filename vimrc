@@ -1,6 +1,12 @@
 " Use pathogen to incorporate ~/.vim/bundle packages into runtime path
 execute pathogen#infect()
 
+" vim-plug managed plugins
+call plug#begin()
+Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
+Plug 'menisadi/kanagawa.vim', { 'as': 'kanagawa' }
+call plug#end()
+
 " Not sure what this one is for
 set nocompatible
 
