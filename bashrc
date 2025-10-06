@@ -84,8 +84,8 @@ if [[ ! -z ${LMOD_SYSTEM_NAME+x} ]]; then
   export HOST_SHORT=${LMOD_SYSTEM_NAME}
 else
   export HOST_SHORT="$(echo ${FQDN} | \
-      sed -e 's/\.\(olcf\|ccs\)\..*//' \
-          -e 's/[-]\?\(login\|ext\|batch\|[a-z][0-9]\+n[0-9]\+\)[^\.]*[\.]\?//' \
+      sed -e 's/\.\(olcf\|ccs\|alcf\|nersc\)\..*//' \
+          -e 's/[-]\?\(aurora-uan\|login\|ext\|batch\|[a-z][0-9]\+n[0-9]\+\)\([^\.]*[\.]\)*//' \
           -e 's/[-0-9]*\([\.][^\.]\+\)\?$//' \
           -e 's/\..*$//')"
 fi
@@ -100,7 +100,8 @@ elif [[ $FQDN = *"cm.cluster" || \
 elif [[ ! -z ${NERSC_HOST+x} ]]; then
     HOST_SHORT=$NERSC_HOST
     export FACILITY="NERSC"
-elif [[ $FQDN = *"anl.gov" ]]; then
+elif [[ $FQDN = *"anl.gov" || \
+        $HOST_SHORT = "aurora" ]]; then
     export FACILITY="ALCF"
 elif [[ $FQDN = *"tennessee.edu" ]]; then
     export FACILITY="NICS"
@@ -128,7 +129,8 @@ if [[ ! "$(uname)" = "Darwin" ]]; then
   elif [[ $FACILITY = "NERSC" ]]; then
       export PROJID="m1373"
   elif [[ $FACILITY = "ALCF" ]]; then
-      export PROJID=""
+      export PROJID="3DCCSN_LONGTIME"
+      export PROJIDS=$PROJID
   else
       export PROJID=""
   fi
@@ -311,6 +313,24 @@ elif [[ $FACILITY = "CRAY" ]]; then
       ## ... Add custom modules to path
       [[ -d $HOME/modulefiles/$HOST_SHORT ]] && module use $HOME/modulefiles/$HOST_SHORT
     fi
+    export WEAKLIB_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
+    export THORNADO_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
+elif [[ $FACILITY = "ALCF" ]]; then
+    export WORKDIR=/lus/flare/projects/$PROJID
+    export PROJHOME=/lus/flare/projects/$PROJID
+    export PROJWORKDIR=$WORKDIR
+    export HPSS_PROJDIR=$PROJHOME
+
+    ## If system has Lmod ...
+    if [[ ! -z ${LMOD_CMD+x} ]]; then
+      ## ... Add custom modules to path
+      [[ -d $HOME/modulefiles/$HOST_SHORT ]] && module use $HOME/modulefiles/$HOST_SHORT
+      ## Load newer git
+      module try-load git
+      ## Load newer subversion
+      module try-load subversion
+    fi
+    ## Default machine for weaklib/thornado
     export WEAKLIB_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
     export THORNADO_MACHINE=${HOST_SHORT}_${LMOD_FAMILY_COMPILER}
 elif [[ $FACILITY = "NERSC" ]]; then
