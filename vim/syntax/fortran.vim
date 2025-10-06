@@ -318,6 +318,8 @@ else
 endif
 
 syn match fortranComment	excludenl "!.*$" contains=@fortranCommentGroup,@spell
+syn match fortranOpenMP		excludenl 		"^\s*\zs!\$\%(OMP\)\?&\?\s.*$"
+syn match fortranEndStatement   display ";"
 
 "cpp is often used with Fortran
 syn match	cPreProc		"^\s*#\s*\(define\|ifdef\)\>.*"
@@ -394,6 +396,7 @@ hi def link fortranConditional	Conditional
 hi def link fortranRepeat	Repeat
 hi def link fortranTodo		Todo
 hi def link fortranContinueMark	Special
+hi def link fortranEndStatement	Special
 hi def link fortranString	String
 hi def link fortranNumber	Number
 hi def link fortranOperator	Operator
@@ -458,6 +461,7 @@ hi def link fortranFloat	Float
 hi def link fortranPreCondit	PreCondit
 hi def link cIncluded		fortranString
 hi def link cInclude		Include
+hi def link fortranOpenMP      	PreProc
 hi def link cPreProc		PreProc
 hi def link cPreCondit		PreCondit
 hi def link fortranParenError	Error
