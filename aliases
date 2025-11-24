@@ -130,6 +130,18 @@ elif [ ! -z ${NERSC_HOST+x} ]; then
     ### Expand max column width for sqs
     #alias sqs="sqs -m 30"
 
+## PBS aliases for NERSC machines
+elif [ $HOST_SHORT == "aurora" -o $HOST_SHORT == "polaris" ]; then
+
+    ## Show only jobs for $USER
+    alias qstatu="qstat -u $USER"
+
+    ## Show only jobs for other users in group
+    alias qstatg="qstat -u $PROJ_USERS"
+
+    ## Interactive job
+    alias qsubi="qsub -I -A $PROJID -q debug -l walltime=01:00:00,nodes=1,select=1,filesystems=flare_fs:home_fs"
+
 else
 
     ## Show only jobs for $USER
