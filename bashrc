@@ -73,6 +73,11 @@ psgrep() {
     ps aux | grep -v grep | grep "$1"
 }
 
+# Custom ls with all time stamps
+if [[ -f $HOME/bin/lstimes.bash ]]; then
+    . $HOME/bin/lstimes.bash
+fi
+
 ## Who am I?
 export USER=$(whoami)
 
